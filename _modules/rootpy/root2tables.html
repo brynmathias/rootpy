@@ -1,0 +1,199 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.root2tables &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.root2tables</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module should handle:</span>
+<span class="sd">* conversion of ROOT&#39;s TFile and contained TTrees into HDF5 format with PyTables</span>
+<span class="sd">  A first attempt is in scripts/root2hd5</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">.progressbar</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="nb">open</span> <span class="k">as</span> <span class="n">ropen</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">.tree</span> <span class="kn">import</span> <span class="n">Tree</span>
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.root2tables.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">rfile</span><span class="p">,</span> <span class="n">hfile</span><span class="p">,</span> <span class="n">rpath</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">hpath</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hfile</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">hfile</span> <span class="o">=</span> <span class="n">openFile</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">hfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;Data&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rfile</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">rfile</span> <span class="o">=</span> <span class="n">ropen</span><span class="p">(</span><span class="n">rfile</span><span class="p">)</span>
+     
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">treenames</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">rfile</span><span class="p">,</span> <span class="n">rpath</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s">&#39;TTree&#39;</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">treenames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">splitfile</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="nb">dir</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="c">#print &gt;&gt; stream, &quot;Creating group %s&quot; % dir</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">hfile</span><span class="o">.</span><span class="n">createGroup</span><span class="p">(</span><span class="n">hfile</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span>
+
+        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;Will convert </span><span class="si">%i</span><span class="s"> tree(s) in this directory&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">treenames</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">tree</span><span class="p">,</span> <span class="n">treename</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">rfile</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="n">treename</span><span class="p">)),</span> <span class="n">treename</span><span class="p">)</span> <span class="k">for</span> <span class="n">treename</span> <span class="ow">in</span> <span class="n">treenames</span><span class="p">]:</span>
+
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;Converting </span><span class="si">%s</span><span class="s"> with </span><span class="si">%i</span><span class="s"> entrie(s) ...&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">treename</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">())</span>
+            <span class="n">basic_branches</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">basic_branch_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">iterbranches</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">branch</span><span class="o">.</span><span class="n">ClassName</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;TBranch&quot;</span><span class="p">:</span>
+                    <span class="n">basic_branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+                    <span class="n">basic_branch_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">branch</span><span class="p">,</span> <span class="n">branch_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">basic_branches</span><span class="p">,</span> <span class="n">basic_branch_names</span><span class="p">):</span>
+                <span class="n">leaf</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">GetListOfLeaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">dimension</span> <span class="o">=</span> <span class="n">leaf</span><span class="o">.</span><span class="n">GetNdata</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">dimension</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;Branch </span><span class="si">%s</span><span class="s"> is not a scalar. Will skip this branch.&quot;</span> <span class="o">%</span> <span class="n">branch</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">type_name</span> <span class="o">=</span> <span class="n">leaf</span><span class="o">.</span><span class="n">GetTypeName</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;Int_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">Int32Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;UInt_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">UInt32Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;Long64_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">Int64Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;ULong64_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">UInt64Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;Float_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">Float32Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;Double_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">Float64Col</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">type_name</span> <span class="o">==</span> <span class="s">&quot;Bool_t&quot;</span><span class="p">:</span>
+                        <span class="n">fields</span><span class="p">[</span><span class="n">branch_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">BoolCol</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;Skipping branch </span><span class="si">%s</span><span class="s"> of unsupported type: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">branch_name</span><span class="p">,</span> <span class="n">type_name</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="n">tree</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="n">branch_name</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;No supported branches in this tree&quot;</span>
+                <span class="k">continue</span>
+
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%i</span><span class="s"> branche(s) will be converted&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+
+            <span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">IsDescription</span><span class="p">):</span>
+                
+                <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+           
+            <span class="n">table</span> <span class="o">=</span> <span class="n">hfile</span><span class="o">.</span><span class="n">createTable</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">treename</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="s">&quot;Event Data&quot;</span><span class="p">)</span>
+            <span class="n">particle</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">row</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+            <span class="n">prog</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;fixed&#39;</span><span class="p">)</span>
+            <span class="n">oldprog</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">particle</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">particle</span><span class="o">.</span><span class="n">append</span><span class="p">()</span>
+                <span class="n">prog</span><span class="o">.</span><span class="n">update_amount</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">oldprog</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">):</span>
+                    <span class="k">print</span> <span class="n">prog</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\r</span><span class="s">&quot;</span><span class="p">,</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                    <span class="n">oldprog</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+            <span class="k">print</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

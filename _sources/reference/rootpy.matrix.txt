@@ -1,0 +1,7 @@
+
+The :mod:`rootpy.matrix` Module
+===================================
+
+.. automodule:: rootpy.matrix
+   :members:
+

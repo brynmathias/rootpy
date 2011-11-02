@@ -1,0 +1,270 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.plotting.core &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.plotting.core</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains base classes defining core funcionality</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">.style</span> <span class="kn">import</span> <span class="n">convert_color</span><span class="p">,</span> <span class="n">convert_markerstyle</span>
+<span class="kn">from</span> <span class="nn">.style</span> <span class="kn">import</span> <span class="n">convert_linestyle</span><span class="p">,</span> <span class="n">convert_fillstyle</span>
+
+<div class="viewcode-block" id="dim"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.dim">[docs]</a><span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="n">hist</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="s">&quot;__dim__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">__dim__</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">DIM</span>
+</div>
+<div class="viewcode-block" id="Plottable"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable">[docs]</a><span class="k">class</span> <span class="nc">Plottable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a mixin to provide additional attributes for plottable classes</span>
+<span class="sd">    and to override ROOT TAttXXX and Draw methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span>  <span class="o">=</span>  <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legendstyle</span> <span class="o">=</span> <span class="s">&quot;P&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intmode</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inlegend</span> <span class="o">=</span> <span class="bp">True</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="s">&quot;circle&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetMarkerColor</span><span class="p">(</span><span class="s">&quot;black&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetFillColor</span><span class="p">(</span><span class="s">&quot;white&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="s">&quot;hollow&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetLineColor</span><span class="p">(</span><span class="s">&quot;black&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetLineStyle</span><span class="p">(</span><span class="s">&quot;solid&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Plottable.decorate"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.decorate">[docs]</a>    <span class="k">def</span> <span class="nf">decorate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_object</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span>  <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;norm&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legendstyle</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;legendstyle&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">legendstyle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intmode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;intmode&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intmode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;visible&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inlegend</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;inlegend&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inlegend</span><span class="p">)</span>
+        
+        <span class="n">markerstyle</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;markerstyle&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">markerstyle</span><span class="p">)</span>
+        <span class="n">markercolor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;markercolor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">markercolor</span><span class="p">)</span>
+        <span class="n">fillcolor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;fillcolor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillcolor</span><span class="p">)</span>
+        <span class="n">fillstyle</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;fillstyle&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillstyle</span><span class="p">)</span>
+        <span class="n">linecolor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;linecolor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linecolor</span><span class="p">)</span>
+        <span class="n">linestyle</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;linestyle&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linestyle</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">template_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_object</span><span class="p">,</span> <span class="n">Plottable</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="o">**</span><span class="n">template_object</span><span class="o">.</span><span class="n">decorators</span><span class="p">())</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_object</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttLine</span><span class="p">):</span>
+                    <span class="n">linecolor</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetLineColor</span><span class="p">()</span>
+                    <span class="n">linestyle</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetLineStyle</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_object</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttFill</span><span class="p">):</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetFillColor</span><span class="p">()</span>
+                    <span class="n">fillstyle</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetFillStyle</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_object</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttMarker</span><span class="p">):</span>
+                    <span class="n">markercolor</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetMarkerColor</span><span class="p">()</span>
+                    <span class="n">markerstyle</span> <span class="o">=</span> <span class="n">template_object</span><span class="o">.</span><span class="n">GetMarkerStyle</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">fillcolor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;white&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">]</span> <span class="ow">and</span> \
+           <span class="n">fillstyle</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;hollow&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="n">fillstyle</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="s">&quot;solid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetFillColor</span><span class="p">(</span><span class="n">fillcolor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetLineStyle</span><span class="p">(</span><span class="n">linestyle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetLineColor</span><span class="p">(</span><span class="n">linecolor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="n">markerstyle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetMarkerColor</span><span class="p">(</span><span class="n">markercolor</span><span class="p">)</span>
+     </div>
+<div class="viewcode-block" id="Plottable.decorators"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.decorators">[docs]</a>    <span class="k">def</span> <span class="nf">decorators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;norm&quot;</span>          <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span>
+            <span class="s">&quot;format&quot;</span>        <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+            <span class="s">&quot;legendstyle&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">legendstyle</span><span class="p">,</span>
+            <span class="s">&quot;intmode&quot;</span>       <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intmode</span><span class="p">,</span>
+            <span class="s">&quot;visible&quot;</span>       <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">,</span>
+            <span class="s">&quot;inlegend&quot;</span>      <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inlegend</span><span class="p">,</span>
+            <span class="s">&quot;markercolor&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetMarkerColor</span><span class="p">(),</span>
+            <span class="s">&quot;markerstyle&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetMarkerStyle</span><span class="p">(),</span>
+            <span class="s">&quot;fillcolor&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetFillColor</span><span class="p">(),</span>
+            <span class="s">&quot;fillstyle&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetFillStyle</span><span class="p">(),</span>
+            <span class="s">&quot;linecolor&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetLineColor</span><span class="p">(),</span>
+            <span class="s">&quot;linestyle&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetLineStyle</span><span class="p">()</span>
+        <span class="p">}</span>
+</div>
+<div class="viewcode-block" id="Plottable.SetLineColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetLineColor">[docs]</a>    <span class="k">def</span> <span class="nf">SetLineColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">linecolor</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linecolormpl</span> <span class="o">=</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttLine</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttLine</span><span class="o">.</span><span class="n">SetLineColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Plottable.GetLineColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetLineColor">[docs]</a>    <span class="k">def</span> <span class="nf">GetLineColor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linecolor</span>
+    </div>
+<div class="viewcode-block" id="Plottable.SetLineStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetLineStyle">[docs]</a>    <span class="k">def</span> <span class="nf">SetLineStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">linestyle</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linestylempl</span> <span class="o">=</span> <span class="n">convert_linestyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttLine</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttLine</span><span class="o">.</span><span class="n">SetLineStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_linestyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Plottable.GetLineStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetLineStyle">[docs]</a>    <span class="k">def</span> <span class="nf">GetLineStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linestyle</span>
+</div>
+<div class="viewcode-block" id="Plottable.SetFillColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetFillColor">[docs]</a>    <span class="k">def</span> <span class="nf">SetFillColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">fillcolor</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fillcolormpl</span> <span class="o">=</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttFill</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttFill</span><span class="o">.</span><span class="n">SetFillColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Plottable.GetFillColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetFillColor">[docs]</a>    <span class="k">def</span> <span class="nf">GetFillColor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillcolor</span>
+</div>
+<div class="viewcode-block" id="Plottable.SetFillStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetFillStyle">[docs]</a>    <span class="k">def</span> <span class="nf">SetFillStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">fillstyle</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fillstylempl</span> <span class="o">=</span> <span class="n">convert_fillstyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttFill</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttFill</span><span class="o">.</span><span class="n">SetFillStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_fillstyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+    </div>
+<div class="viewcode-block" id="Plottable.GetFillStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetFillStyle">[docs]</a>    <span class="k">def</span> <span class="nf">GetFillStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillstyle</span>
+</div>
+<div class="viewcode-block" id="Plottable.SetMarkerColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetMarkerColor">[docs]</a>    <span class="k">def</span> <span class="nf">SetMarkerColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">markercolor</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">markercolormpl</span> <span class="o">=</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttMarker</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttMarker</span><span class="o">.</span><span class="n">SetMarkerColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_color</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Plottable.GetMarkerColor"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetMarkerColor">[docs]</a>    <span class="k">def</span> <span class="nf">GetMarkerColor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">markercolor</span>
+</div>
+<div class="viewcode-block" id="Plottable.SetMarkerStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.SetMarkerStyle">[docs]</a>    <span class="k">def</span> <span class="nf">SetMarkerStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">markerstyle</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">markerstylempl</span> <span class="o">=</span> <span class="n">convert_markerstyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;mpl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttMarker</span><span class="p">):</span>
+            <span class="n">ROOT</span><span class="o">.</span><span class="n">TAttMarker</span><span class="o">.</span><span class="n">SetMarkerStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_markerstyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s">&#39;root&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Plottable.GetMarkerStyle"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.GetMarkerStyle">[docs]</a>    <span class="k">def</span> <span class="nf">GetMarkerStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">markerstyle</span>
+</div>
+<div class="viewcode-block" id="Plottable.Draw"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.core.Plottable.Draw">[docs]</a>    <span class="k">def</span> <span class="nf">Draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__bases__</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="p">)</span><span class="o">+</span><span class="n">args</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__bases__</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gPad</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span><span class="s">&quot;members&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pad</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+                    <span class="n">pad</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

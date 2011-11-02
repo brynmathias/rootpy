@@ -1,0 +1,703 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.common &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.common</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">array</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">isbasictype</span>
+<span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.plotting.core</span> <span class="kn">import</span> <span class="n">dim</span>
+<span class="kn">from</span> <span class="nn">.plotting.hist</span> <span class="kn">import</span> <span class="n">_HistBase</span>
+<span class="kn">from</span> <span class="nn">.tree</span> <span class="kn">import</span> <span class="n">Cut</span>
+<span class="kn">from</span> <span class="nn">.plotting.style</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">ROOT</span> <span class="kn">import</span> <span class="n">gROOT</span><span class="p">,</span> <span class="n">gStyle</span><span class="p">,</span> <span class="n">gPad</span><span class="p">,</span> <span class="n">TGraph</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<div class="viewcode-block" id="readline"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.readline">[docs]</a><span class="k">def</span> <span class="nf">readline</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">cont</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="n">line</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cont</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">cont</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">cont</span><span class="p">)],</span> <span class="nb">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()])</span>
+    <span class="k">return</span> <span class="n">line</span>
+</div>
+<div class="viewcode-block" id="readlines"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.readlines">[docs]</a><span class="k">def</span> <span class="nf">readlines</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">cont</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">readline</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">cont</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">readline</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">cont</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
+</div>
+<div class="viewcode-block" id="getTrees"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getTrees">[docs]</a><span class="k">def</span> <span class="nf">getTrees</span><span class="p">(</span><span class="n">inputFile</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">getObjects</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="s">&quot;TTree&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="getTreeNames"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getTreeNames">[docs]</a><span class="k">def</span> <span class="nf">getTreeNames</span><span class="p">(</span><span class="n">inputFile</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">getObjectNames</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="s">&quot;TTree&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="getGraphs"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getGraphs">[docs]</a><span class="k">def</span> <span class="nf">getGraphs</span><span class="p">(</span><span class="n">inputFile</span><span class="p">):</span>
+    
+    <span class="k">return</span> <span class="n">getObjects</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="s">&quot;TGraph&quot;</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="getHistos"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getHistos">[docs]</a><span class="k">def</span> <span class="nf">getHistos</span><span class="p">(</span><span class="n">inputFile</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">getObjects</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="s">&quot;TH1D&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="getObjects"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getObjects">[docs]</a><span class="k">def</span> <span class="nf">getObjects</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">inputFile</span><span class="o">.</span><span class="n">GetListOfKeys</span><span class="p">()</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">className</span><span class="o">==</span><span class="s">&quot;&quot;</span> <span class="ow">or</span> <span class="n">key</span><span class="o">.</span><span class="n">GetClassName</span><span class="p">()</span> <span class="o">==</span> <span class="n">className</span><span class="p">:</span>
+            <span class="n">objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputFile</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">GetName</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">objects</span>
+</div>
+<div class="viewcode-block" id="getObjectNames"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getObjectNames">[docs]</a><span class="k">def</span> <span class="nf">getObjectNames</span><span class="p">(</span><span class="n">inputFile</span><span class="p">,</span> <span class="n">className</span><span class="p">):</span>
+    
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">inputFile</span><span class="o">.</span><span class="n">GetListOfKeys</span><span class="p">()</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">GetClassName</span><span class="p">()</span> <span class="o">==</span> <span class="n">className</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">names</span>
+</div>
+<div class="viewcode-block" id="getNumEntriesWeightedSelection"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getNumEntriesWeightedSelection">[docs]</a><span class="k">def</span> <span class="nf">getNumEntriesWeightedSelection</span><span class="p">(</span><span class="n">trees</span><span class="p">,</span><span class="n">cuts</span><span class="p">,</span><span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">branch</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">minimum</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">maximum</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+   
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[</span><span class="n">trees</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Retrieving the weighted number of entries (with weighted selection) in:&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Retrieving the unweighted number of entries (with weighted selection) in:&quot;</span>
+    <span class="n">wentries</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Using cuts: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">&quot;EventNumber&quot;</span> <span class="ow">in</span> <span class="n">branch</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">minimum</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">minimum</span> <span class="o">=</span> <span class="n">getTreeMinimum</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">maximum</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">maximum</span> <span class="o">=</span> <span class="n">getTreeMaximum</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">minimum</span> <span class="o">==</span> <span class="n">maximum</span><span class="p">:</span>
+            <span class="n">minimum</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">maximum</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;using branch </span><span class="si">%s</span><span class="s"> with min </span><span class="si">%f</span><span class="s"> and max </span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="p">)</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">maximum</span> <span class="o">-</span> <span class="n">minimum</span>
+        <span class="n">minimum</span> <span class="o">-=</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">maximum</span> <span class="o">+=</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">Hist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">minimum</span><span class="p">,</span><span class="n">maximum</span><span class="p">)</span>
+        <span class="n">draw_trees</span><span class="p">(</span><span class="n">trees</span> <span class="o">=</span> <span class="n">tree</span><span class="p">,</span> <span class="n">expression</span> <span class="o">=</span> <span class="n">branch</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="n">hist</span><span class="p">,</span> <span class="n">cuts</span> <span class="o">=</span> <span class="n">cuts</span><span class="p">,</span> <span class="n">weighted</span> <span class="o">=</span> <span class="n">weighted</span><span class="p">)</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+        <span class="n">wentries</span> <span class="o">+=</span> <span class="n">entries</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%e</span><span class="se">\t</span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span><span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">(),</span><span class="n">entries</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wentries</span>
+</div>
+<div class="viewcode-block" id="getNumEntries"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getNumEntries">[docs]</a><span class="k">def</span> <span class="nf">getNumEntries</span><span class="p">(</span><span class="n">trees</span><span class="p">,</span><span class="n">cuts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+   
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[</span><span class="n">trees</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Retrieving the weighted number of entries in:&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Retrieving the unweighted number of entries in:&quot;</span>
+    <span class="n">wentries</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">if</span> <span class="n">cuts</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Using cuts: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%e</span><span class="se">\t</span><span class="si">%i</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span><span class="n">weight</span><span class="p">,</span><span class="n">entries</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+                <span class="n">wentries</span> <span class="o">+=</span> <span class="n">weight</span><span class="o">*</span><span class="n">entries</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wentries</span> <span class="o">+=</span> <span class="n">entries</span>
+        <span class="k">return</span> <span class="n">wentries</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%e</span><span class="se">\t</span><span class="si">%i</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span><span class="n">weight</span><span class="p">,</span><span class="n">entries</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+            <span class="n">wentries</span> <span class="o">+=</span> <span class="n">weight</span><span class="o">*</span><span class="n">entries</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wentries</span> <span class="o">+=</span> <span class="n">entries</span>
+    <span class="k">return</span> <span class="n">wentries</span>
+</div>
+<div class="viewcode-block" id="makeLabel"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.makeLabel">[docs]</a><span class="k">def</span> <span class="nf">makeLabel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">font</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TLatex</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">label</span><span class="o">.</span><span class="n">SetNDC</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">SetTextSize</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">SetTextFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">label</span>
+</div>
+<div class="viewcode-block" id="drawObject"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.drawObject">[docs]</a><span class="k">def</span> <span class="nf">drawObject</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span><span class="nb">object</span><span class="p">,</span><span class="n">options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+
+    <span class="n">pad</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+    <span class="nb">object</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Modified</span><span class="p">()</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Update</span><span class="p">()</span>
+    <span class="n">hold_pointers_to_implicit_members</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="getTreeMaximum"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getTreeMaximum">[docs]</a><span class="k">def</span> <span class="nf">getTreeMaximum</span><span class="p">(</span><span class="n">trees</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[</span><span class="n">trees</span><span class="p">]</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># - infinity</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+        <span class="n">treeMax</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">cut</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">treeMax</span> <span class="o">&gt;</span> <span class="n">_max</span><span class="p">:</span>
+            <span class="n">_max</span> <span class="o">=</span> <span class="n">treeMax</span>
+    <span class="k">return</span> <span class="n">_max</span> 
+</div>
+<div class="viewcode-block" id="getTreeMinimum"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.getTreeMinimum">[docs]</a><span class="k">def</span> <span class="nf">getTreeMinimum</span><span class="p">(</span><span class="n">trees</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[</span><span class="n">trees</span><span class="p">]</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="p">()</span> <span class="c"># + infinity</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+        <span class="n">treeMin</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">cut</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">treeMin</span> <span class="o">&lt;</span> <span class="n">_min</span><span class="p">:</span>
+            <span class="n">_min</span> <span class="o">=</span> <span class="n">treeMin</span>
+    <span class="k">return</span> <span class="n">_min</span>
+</div>
+<div class="viewcode-block" id="draw_samples"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.draw_samples">[docs]</a><span class="k">def</span> <span class="nf">draw_samples</span><span class="p">(</span>
+        <span class="n">samples</span><span class="p">,</span>
+        <span class="n">expression</span><span class="p">,</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">weighted</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">samples</span><span class="p">]</span>
+    <span class="n">trees</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">trees</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">draw_trees</span><span class="p">(</span>
+        <span class="n">trees</span><span class="p">,</span>
+        <span class="n">expression</span><span class="p">,</span>
+        <span class="n">hist</span><span class="p">,</span>
+        <span class="n">cuts</span><span class="p">,</span>
+        <span class="n">weighted</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="draw_trees"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.draw_trees">[docs]</a><span class="k">def</span> <span class="nf">draw_trees</span><span class="p">(</span>
+        <span class="n">trees</span><span class="p">,</span>
+        <span class="n">expression</span><span class="p">,</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">weighted</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="p">):</span>
+   
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[</span><span class="n">trees</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">histname</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">histname</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+    <span class="n">temp_weight</span> <span class="o">=</span> <span class="mf">1.</span> 
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Drawing the following trees onto </span><span class="si">%s</span><span class="s">:&quot;</span><span class="o">%</span> <span class="n">histname</span>
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Initial integral: </span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cuts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;cuts applied: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">weighted</span><span class="p">:</span>
+            <span class="n">temp_weight</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cuts</span><span class="p">:</span>
+            <span class="n">ohist</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&gt;&gt;+</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span><span class="n">histname</span><span class="p">),</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ohist</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&gt;&gt;+</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span><span class="n">histname</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">weighted</span><span class="p">:</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="n">temp_weight</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Final integral: </span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span><span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ohist</span>
+</div>
+<div class="viewcode-block" id="closest"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.closest">[docs]</a><span class="k">def</span> <span class="nf">closest</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">collection</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="nb">min</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">collection</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+</div>
+<div class="viewcode-block" id="round_to_n"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.round_to_n">[docs]</a><span class="k">def</span> <span class="nf">round_to_n</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;number of significant digits must be &gt;= 1&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&quot;</span><span class="si">%.*g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ratioPlot"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.ratioPlot">[docs]</a><span class="k">def</span> <span class="nf">ratioPlot</span><span class="p">(</span><span class="n">graphs</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
+
+    <span class="n">ratios</span> <span class="o">=</span> <span class="p">[</span><span class="n">Graph</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">consistency</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ratios</span>
+</div>
+<div class="viewcode-block" id="drawGraphs"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.drawGraphs">[docs]</a><span class="k">def</span> <span class="nf">drawGraphs</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span>
+               <span class="n">graphs</span><span class="p">,</span>
+               <span class="n">title</span><span class="p">,</span>
+               <span class="n">xtitle</span><span class="p">,</span>
+               <span class="n">ytitle</span><span class="p">,</span>
+               <span class="n">legend</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">format</span><span class="o">=</span><span class="s">&quot;png&quot;</span><span class="p">,</span>
+               <span class="n">xmin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">xmax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">ymin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">ymax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">yscale</span><span class="o">=</span><span class="s">&quot;log&quot;</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">xmin</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="k">if</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="p">()</span>
+    
+    <span class="n">pad</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;log&quot;</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLogy</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="n">Legend</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">),</span><span class="n">pad</span><span class="p">)</span>
+    
+    <span class="n">lxmin</span><span class="p">,</span> <span class="n">lymin</span> <span class="o">=</span> <span class="p">(),</span> <span class="p">()</span>
+    <span class="n">lxmax</span><span class="p">,</span> <span class="n">lymax</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">:</span>
+        <span class="n">txmax</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">xMax</span><span class="p">()</span>
+        <span class="n">txmin</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">xMin</span><span class="p">()</span>
+        <span class="n">tymax</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">yMax</span><span class="p">()</span>
+        <span class="n">tymin</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">yMin</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">txmax</span> <span class="o">&gt;</span> <span class="n">lxmax</span><span class="p">:</span>
+            <span class="n">lxmax</span> <span class="o">=</span> <span class="n">txmax</span>
+        <span class="k">if</span> <span class="n">txmin</span> <span class="o">&lt;</span> <span class="n">lxmin</span><span class="p">:</span>
+            <span class="n">lxmin</span> <span class="o">=</span> <span class="n">txmin</span>
+        <span class="k">if</span> <span class="n">tymax</span> <span class="o">&gt;</span> <span class="n">lymax</span><span class="p">:</span>
+            <span class="n">lymax</span> <span class="o">=</span> <span class="n">tymax</span>
+        <span class="k">if</span> <span class="n">tymin</span> <span class="o">&lt;</span> <span class="n">lymin</span><span class="p">:</span>
+            <span class="n">lymin</span> <span class="o">=</span> <span class="n">tymin</span>
+
+    <span class="k">if</span> <span class="n">xmin</span> <span class="ow">is</span> <span class="p">():</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="n">lxmin</span>
+    <span class="k">if</span> <span class="n">xmax</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="n">lxmax</span>
+    <span class="k">if</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="p">():</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">lymin</span>
+    <span class="k">if</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="n">lymax</span>
+        
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">graph</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graphs</span><span class="p">):</span>
+        <span class="n">legend</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">SetMarkerSize</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetLimits</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetRangeUser</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">xtitle</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetLimits</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetRangeUser</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">ytitle</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&#39;A&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&#39;SAME&#39;</span><span class="p">)</span>
+    
+    <span class="n">legend</span><span class="o">.</span><span class="n">Draw</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">Draw</span><span class="p">()</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Modified</span><span class="p">()</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Update</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pad</span><span class="o">.</span><span class="n">GetListOfPrimitives</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">ROOT</span><span class="o">.</span><span class="n">TPaveText</span><span class="p">):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">GetLine</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">SetTextFont</span><span class="p">(</span><span class="mi">63</span><span class="p">)</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">SetTextSizePixels</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">_hold_pointers_to_implicit_members</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="draw"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.draw">[docs]</a><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
+        <span class="n">objects</span><span class="p">,</span>
+        <span class="n">pad</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">axislabels</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">showlegend</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="n">greedylegend</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="n">textlabels</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">xscale</span> <span class="o">=</span> <span class="s">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">yscale</span> <span class="o">=</span> <span class="s">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">style2d</span> <span class="o">=</span> <span class="s">&quot;col&quot;</span><span class="p">,</span>
+        <span class="n">style3d</span> <span class="o">=</span> <span class="s">&quot;surf1&quot;</span><span class="p">,</span>
+        <span class="n">maxmin</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">minmax</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">minimum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">maximum</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="n">use_global_margins</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="p">):</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">objects</span><span class="p">]</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">hist</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span> <span class="k">for</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">]</span>
+   
+    <span class="n">dimension</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dimension</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">dimension</span> <span class="o">=</span> <span class="n">dim</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dim</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dimension</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;dimensions of histograms must all be the same&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">axislabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+            <span class="n">axislabels</span> <span class="o">=</span> <span class="p">[</span><span class="n">axislabels</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">axislabels</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">if</span> <span class="n">textlabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">textlabels</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+            <span class="n">textlabels</span> <span class="o">=</span> <span class="p">[</span><span class="n">textlabels</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">textlabels</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">pad</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">pad</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span><span class="s">&quot;Canvas&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">800</span><span class="p">,</span><span class="mi">600</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">Clear</span><span class="p">()</span>
+    
+    <span class="n">pad</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;log&quot;</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLogy</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLogy</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xscale</span> <span class="o">==</span> <span class="s">&quot;log&quot;</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLogx</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLogx</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">use_global_margins</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetTopMargin</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gStyle</span><span class="o">.</span><span class="n">GetPadTopMargin</span><span class="p">())</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetRightMargin</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gStyle</span><span class="o">.</span><span class="n">GetPadRightMargin</span><span class="p">())</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetBottomMargin</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gStyle</span><span class="o">.</span><span class="n">GetPadBottomMargin</span><span class="p">())</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetLeftMargin</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gStyle</span><span class="o">.</span><span class="n">GetPadLeftMargin</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">SetTopMargin</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="n">HistStack</span><span class="p">):</span>
+            <span class="n">subobjects</span> <span class="o">=</span> <span class="n">hist</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subobjects</span> <span class="o">=</span> <span class="p">[</span><span class="n">hist</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">subhist</span> <span class="ow">in</span> <span class="n">subobjects</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&quot;colz&quot;</span> <span class="ow">in</span> <span class="n">subhist</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
+                    <span class="n">pad</span><span class="o">.</span><span class="n">SetTopMargin</span><span class="p">(</span><span class="mf">0.06</span><span class="p">)</span>
+                <span class="n">pad</span><span class="o">.</span><span class="n">SetRightMargin</span><span class="p">(</span><span class="mf">0.13</span><span class="p">)</span>
+                <span class="k">break</span>
+
+    <span class="n">nobjects</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="n">HistStack</span><span class="p">):</span>
+            <span class="n">nobjects</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nobjects</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">legend</span> <span class="ow">and</span> <span class="n">showlegend</span><span class="p">:</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="n">Legend</span><span class="p">(</span><span class="n">nobjects</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>
+        <span class="n">legend</span><span class="o">.</span><span class="n">SetTextSize</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span> <span class="n">_HistBase</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span> <span class="n">HistStack</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+                <span class="n">integral</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;max&quot;</span><span class="p">:</span>
+                    <span class="n">norm</span> <span class="o">=</span> <span class="mf">1.</span>
+                    <span class="n">integral</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Normalization not understood: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">isbasictype</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">norm</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">norm</span>
+                <span class="n">integral</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">integral</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">Scale</span><span class="p">(</span><span class="n">norm</span> <span class="o">/</span> <span class="n">integral</span><span class="p">)</span>
+    
+    <span class="n">_max</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># negative infinity</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="p">()</span>    <span class="c"># positive infinity</span>
+    <span class="k">for</span> <span class="n">hist</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dim</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">lmax</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">(</span><span class="n">include_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">lmin</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">(</span><span class="n">include_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lmax</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span>
+            <span class="n">lmin</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lmax</span> <span class="o">&gt;</span> <span class="n">_max</span><span class="p">:</span>
+            <span class="n">_max</span> <span class="o">=</span> <span class="n">lmax</span>
+        <span class="k">if</span> <span class="n">lmin</span> <span class="o">&lt;</span> <span class="n">_min</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;log&quot;</span> <span class="ow">and</span> <span class="n">lmin</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">):</span>
+            <span class="n">_min</span> <span class="o">=</span> <span class="n">lmin</span>
+
+    <span class="n">__max</span><span class="p">,</span> <span class="n">__min</span> <span class="o">=</span> <span class="n">_max</span><span class="p">,</span> <span class="n">_min</span>
+
+    <span class="k">if</span> <span class="n">maximum</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">maximum</span> <span class="o">&gt;</span> <span class="n">_max</span><span class="p">:</span>
+            <span class="n">_max</span> <span class="o">=</span> <span class="n">maximum</span>
+    <span class="k">if</span> <span class="n">minimum</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">minimum</span> <span class="o">&lt;</span> <span class="n">_min</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;log&quot;</span> <span class="ow">and</span> <span class="n">minimum</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">):</span>
+            <span class="n">_min</span> <span class="o">=</span> <span class="n">minimum</span>
+
+    <span class="k">if</span> <span class="n">_min</span> <span class="o">&gt;</span> <span class="n">maxmin</span><span class="p">:</span>
+        <span class="n">_min</span> <span class="o">=</span> <span class="n">maxmin</span>
+    <span class="k">if</span> <span class="n">_max</span> <span class="o">&lt;</span> <span class="n">minmax</span><span class="p">:</span>
+        <span class="n">_max</span> <span class="o">=</span> <span class="n">minmax</span>
+    
+    <span class="k">if</span> <span class="n">legend</span> <span class="ow">and</span> <span class="n">greedylegend</span><span class="p">:</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="mf">0.05</span>
+        <span class="n">plotheight</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pad</span><span class="o">.</span><span class="n">GetTopMargin</span><span class="p">())</span> <span class="o">-</span> <span class="n">pad</span><span class="o">.</span><span class="n">GetBottomMargin</span><span class="p">()</span>
+        <span class="n">legendheight</span> <span class="o">=</span> <span class="n">legend</span><span class="o">.</span><span class="n">Height</span><span class="p">()</span> <span class="o">+</span> <span class="n">padding</span>
+        <span class="k">if</span> <span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;linear&quot;</span><span class="p">:</span>
+            <span class="n">_max</span> <span class="o">=</span> <span class="p">(</span><span class="n">_max</span> <span class="o">-</span> <span class="p">(</span><span class="n">_min</span> <span class="o">*</span> <span class="n">legendheight</span> <span class="o">/</span> <span class="n">plotheight</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">legendheight</span> <span class="o">/</span> <span class="n">plotheight</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c"># log</span>
+            <span class="k">if</span> <span class="n">_max</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Attempted to plot log scale where max&lt;=0: </span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">_max</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_min</span> <span class="o">&lt;=</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Attempted to plot log scale where min&lt;=0: </span><span class="si">%f</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">_min</span><span class="p">)</span>
+            <span class="n">_max</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">_max</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">legendheight</span> <span class="o">/</span> <span class="n">plotheight</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">legendheight</span> <span class="o">/</span> <span class="n">plotheight</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">yscale</span> <span class="o">==</span> <span class="s">&quot;linear&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">maximum</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_max</span> <span class="o">+=</span> <span class="p">(</span><span class="n">_max</span> <span class="o">-</span> <span class="n">_min</span><span class="p">)</span><span class="o">*.</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">_min</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_min</span> <span class="o">-=</span> <span class="p">(</span><span class="n">_max</span> <span class="o">-</span> <span class="n">_min</span><span class="p">)</span><span class="o">*.</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">_max</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">_min</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">maximum</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_max</span> <span class="o">*=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">height</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_min</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_min</span> <span class="o">*=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">height</span><span class="o">*-.</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="n">format</span> <span class="o">+=</span> <span class="n">style2d</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+        <span class="n">format</span> <span class="o">+=</span> <span class="n">style3d</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">hist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>       
+        <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+            <span class="n">legend</span><span class="o">.</span><span class="n">AddEntry</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">axesDrawn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="n">Graph</span><span class="p">):</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&#39;AP&#39;</span><span class="p">,</span><span class="n">format</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">format</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hist</span><span class="o">.</span><span class="n">visible</span><span class="p">:</span>
+                <span class="n">axesDrawn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">axislabels</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">axislabels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">hist</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">axislabels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">hist</span><span class="o">.</span><span class="n">GetZaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">axislabels</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axislabels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="n">hist</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">axislabels</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                        <span class="n">hist</span><span class="o">.</span><span class="n">GetZaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetTitleOffset</span><span class="p">(</span><span class="mf">1.8</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_max</span> <span class="o">&gt;</span> <span class="n">_min</span> <span class="ow">and</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetLimits</span><span class="p">(</span><span class="n">_min</span><span class="p">,</span> <span class="n">_max</span><span class="p">)</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetYaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetRangeUser</span><span class="p">(</span><span class="n">_min</span><span class="p">,</span> <span class="n">_max</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_max</span> <span class="o">&gt;</span> <span class="n">_min</span> <span class="ow">and</span> <span class="n">dimension</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetZaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetLimits</span><span class="p">(</span><span class="n">_min</span><span class="p">,</span> <span class="n">_max</span><span class="p">)</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetZaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetRangeUser</span><span class="p">(</span><span class="n">_min</span><span class="p">,</span> <span class="n">_max</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hist</span><span class="o">.</span><span class="n">intmode</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetNdivisions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">),</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hist</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="n">Graph</span><span class="p">):</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;P same&quot;</span><span class="p">,</span><span class="n">format</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hist</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;same&quot;</span><span class="p">,</span><span class="n">format</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="n">legend</span><span class="o">.</span><span class="n">Draw</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">textlabels</span><span class="p">:</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">Draw</span><span class="p">()</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    for item in pad.GetListOfPrimitives():</span>
+<span class="sd">        if isinstance(item, ROOT.TPaveText):</span>
+<span class="sd">            text = item.GetLine(0)</span>
+<span class="sd">            text.SetTextFont(63)</span>
+<span class="sd">            text.SetTextSizePixels(20)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">OwnMembers</span><span class="p">()</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Modified</span><span class="p">()</span>
+    <span class="n">pad</span><span class="o">.</span><span class="n">Update</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pad</span><span class="p">,</span> <span class="n">__max</span><span class="p">,</span> <span class="n">__min</span>
+</div>
+<div class="viewcode-block" id="save_pad"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.save_pad">[docs]</a><span class="k">def</span> <span class="nf">save_pad</span><span class="p">(</span><span class="n">pad</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">format</span><span class="o">=</span><span class="s">&quot;png&quot;</span><span class="p">,</span><span class="nb">dir</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pad</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="c">#To Fix</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">dir</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;/&quot;</span><span class="o">+</span><span class="n">filename</span>
+    
+    <span class="n">formats</span> <span class="o">=</span> <span class="n">format</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">imageformat</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">filename</span><span class="p">,</span><span class="n">imageformat</span><span class="p">]))</span>
+</div>
+<div class="viewcode-block" id="animate_pads"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.animate_pads">[docs]</a><span class="k">def</span> <span class="nf">animate_pads</span><span class="p">(</span><span class="n">pads</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">loop</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">delay</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">pads</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+        <span class="n">pads</span> <span class="o">=</span> <span class="p">[</span><span class="n">pads</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pads</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">frameindex</span><span class="p">,</span><span class="n">pad</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pads</span><span class="p">):</span>
+        <span class="n">framename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%i</span><span class="s">.png&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">pad</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span> <span class="n">frameindex</span><span class="p">)</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">framename</span><span class="p">)</span>
+        <span class="n">pad</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">framename</span><span class="p">)</span>
+    <span class="n">frame_args</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&quot;convert -delay </span><span class="si">%i</span><span class="s"> -loop </span><span class="si">%i</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">loop</span><span class="p">,</span> <span class="n">frame_args</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s">&quot;.gif&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Could not create animation. Is ImageMagick installed?&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">_hold_pointers_to_implicit_members</span><span class="p">(</span> <span class="n">obj</span> <span class="p">):</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;_implicit_members&#39;</span><span class="p">):</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">_implicit_members</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;GetListOfPrimitives&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">prim</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetListOfPrimitives</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">prim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_implicit_members</span><span class="p">:</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">_implicit_members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prim</span><span class="p">)</span>
+
+<div class="viewcode-block" id="set_style"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.set_style">[docs]</a><span class="k">def</span> <span class="nf">set_style</span><span class="p">(</span><span class="n">style</span><span class="p">):</span>
+
+    <span class="k">print</span> <span class="s">&quot;Using ROOT style </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">style</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">SetStyle</span><span class="p">(</span><span class="n">style</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">ForceStyle</span><span class="p">()</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">gStyle</span><span class="o">.</span><span class="n">SetPalette</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="logon"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.common.logon">[docs]</a><span class="k">def</span> <span class="nf">logon</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">batch</span><span class="p">:</span>
+        <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">SetBatch</span><span class="p">()</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">TH1</span><span class="o">.</span><span class="n">SetDefaultSumw2</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#ROOT.gROOT.SetStyle(&quot;Plain&quot;)</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">TGaxis</span><span class="o">.</span><span class="n">SetMaxDigits</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">set_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

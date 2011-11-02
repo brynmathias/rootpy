@@ -1,0 +1,369 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.tree.filtering &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.tree.filtering</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">tabulartext</span> <span class="kn">import</span> <span class="n">PrettyTable</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines a framework for filtering Trees.</span>
+<span class="sd">The user must write a class which inherits from Filter and</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The base class from which all filter classes must inherit from.</span>
+<span class="sd">    The derived class must override the passes method which returns True</span>
+<span class="sd">    if ths event passes and returns False if not.</span>
+<span class="sd">    The number of passing and failing events are recorded and may be used</span>
+<span class="sd">    later to create a cut-flow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">passthrough</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passing</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passthrough</span> <span class="o">=</span> <span class="n">passthrough</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">was_passed</span> <span class="o">=</span> <span class="bp">False</span>
+    
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&quot;total&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">,</span>
+                <span class="s">&quot;passing&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">passing</span><span class="p">,</span>
+                <span class="s">&quot;details&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="p">}</span>
+    
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s">&#39;total&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passing</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s">&#39;passing&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s">&#39;details&#39;</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s">&quot;Filter </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">+</span>\
+               <span class="s">&quot;Total: </span><span class="si">%i</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">)</span><span class="o">+</span>\
+               <span class="s">&quot;Pass:  </span><span class="si">%i</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">passing</span><span class="p">)</span>
+    
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Filter.add"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.Filter.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">left</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">right</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Attemping to add filters with different names&quot;</span><span class="p">)</span>
+        <span class="n">newfilter</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">()</span>
+        <span class="n">newfilter</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">newfilter</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">total</span> <span class="o">+</span> <span class="n">right</span><span class="o">.</span><span class="n">total</span>
+        <span class="n">newfilter</span><span class="o">.</span><span class="n">passing</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">passing</span> <span class="o">+</span> <span class="n">right</span><span class="o">.</span><span class="n">passing</span>
+        <span class="n">newfilter</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">detail</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="n">detail</span><span class="p">]</span> <span class="o">+</span> <span class="n">right</span><span class="o">.</span><span class="n">details</span><span class="p">[</span><span class="n">detail</span><span class="p">])</span> <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">left</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">newfilter</span>
+</div>
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="k">return</span> <span class="n">Filter</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Filter.passed"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.Filter.passed">[docs]</a>    <span class="k">def</span> <span class="nf">passed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passing</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">was_passed</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="Filter.failed"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.Filter.failed">[docs]</a>    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">was_passed</span> <span class="o">=</span> <span class="bp">False</span>
+   
+</div></div>
+<div class="viewcode-block" id="FilterHook"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterHook">[docs]</a><span class="k">class</span> <span class="nc">FilterHook</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+ 
+</div>
+<div class="viewcode-block" id="EventFilter"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.EventFilter">[docs]</a><span class="k">class</span> <span class="nc">EventFilter</span><span class="p">(</span><span class="n">Filter</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passthrough</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">passes</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">:</span>
+                    <span class="n">hook</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">passed</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    
+<div class="viewcode-block" id="EventFilter.passes"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.EventFilter.passes">[docs]</a>    <span class="k">def</span> <span class="nf">passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        You should override this method in your derived class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="ObjectFilter"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.ObjectFilter">[docs]</a><span class="k">class</span> <span class="nc">ObjectFilter</span><span class="p">(</span><span class="n">Filter</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count_events</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_events</span> <span class="o">=</span> <span class="n">count_events</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectFilter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">was_passed</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">passthrough</span><span class="p">:</span>
+            <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">collection</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">was_passed</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_events</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">passing</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">passing</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">collection</span>
+   
+<div class="viewcode-block" id="ObjectFilter.filtered"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.ObjectFilter.filtered">[docs]</a>    <span class="k">def</span> <span class="nf">filtered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        You should override this method in your derived class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">collection</span>
+
+</div></div>
+<div class="viewcode-block" id="FilterList"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList">[docs]</a><span class="k">class</span> <span class="nc">FilterList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a list of Filters for convenient evaluation of a sequence of Filters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FilterList.merge"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">list1</span><span class="p">,</span> <span class="n">list2</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;list1 must be a FilterList or list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">list2</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;list2 must be a FilterList or list&quot;</span><span class="p">)</span>
+        <span class="n">filterlist</span> <span class="o">=</span> <span class="n">FilterList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span> <span class="n">list2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">_f1</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">()</span>
+                <span class="n">_f1</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span>
+                <span class="n">f1</span> <span class="o">=</span> <span class="n">_f1</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">f2</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">_f2</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">()</span>
+                <span class="n">_f2</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="n">f2</span><span class="p">)</span>
+                <span class="n">f2</span> <span class="o">=</span> <span class="n">_f2</span>
+            <span class="n">filterlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filterlist</span>
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FilterList.total"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList.total">[docs]</a>    <span class="k">def</span> <span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">total</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FilterList.passing"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList.passing">[docs]</a>    <span class="k">def</span> <span class="nf">passing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">passing</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    </div>
+<div class="viewcode-block" id="FilterList.basic"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList.basic">[docs]</a>    <span class="k">def</span> <span class="nf">basic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all filters as simple dicts for pickling.</span>
+<span class="sd">        Removes all dependence on this module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">filter</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span> <span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+    </div>
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="p">(</span><span class="n">Filter</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;FilterList can only hold objects inheriting from Filter or dict&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="FilterList.append"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.FilterList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="p">(</span><span class="n">Filter</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;FilterList can only hold objects inheriting from Filter or dict&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">([</span><span class="s">&quot;Filter&quot;</span><span class="p">,</span> <span class="s">&quot;Pass&quot;</span><span class="p">])</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">align</span><span class="p">[</span><span class="s">&quot;Filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;l&quot;</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">align</span><span class="p">[</span><span class="s">&quot;Pass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;l&quot;</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="s">&quot;Total&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">total</span><span class="p">])</span>
+            <span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="nb">filter</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">filter</span><span class="o">.</span><span class="n">passing</span><span class="p">])</span>
+            <span class="n">_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+            <span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">filter</span><span class="o">.</span><span class="n">details</span><span class="p">:</span>
+                    <span class="n">_str</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s"> Details</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="nb">filter</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">details_table</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">([</span><span class="s">&quot;Detail&quot;</span><span class="p">,</span> <span class="s">&quot;Value&quot;</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">filter</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">details_table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">])</span>
+                    <span class="n">_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">details_table</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_str</span> 
+        <span class="k">return</span> <span class="s">&quot;Empty FilterList&quot;</span>
+
+</div>
+<div class="viewcode-block" id="EventFilterList"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.EventFilterList">[docs]</a><span class="k">class</span> <span class="nc">EventFilterList</span><span class="p">(</span><span class="n">FilterList</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">filter</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">EventFilter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;EventFilterList can only hold objects inheriting from EventFilter&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EventFilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="EventFilterList.append"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.EventFilterList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">EventFilter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;EventFilterList can only hold objects inheriting from EventFilter&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EventFilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ObjectFilterList"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.ObjectFilterList">[docs]</a><span class="k">class</span> <span class="nc">ObjectFilterList</span><span class="p">(</span><span class="n">FilterList</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+
+        <span class="n">passing_objects</span> <span class="o">=</span> <span class="n">collection</span>
+        <span class="k">for</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">passing_objects</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">passing_objects</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">passing_objects</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">passing_objects</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">ObjectFilter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;ObjectFilterList can only hold objects inheriting from ObjectFilter&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectFilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="ObjectFilterList.append"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.filtering.ObjectFilterList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">ObjectFilter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;ObjectFilterList can only hold objects inheriting from ObjectFilter&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectFilterList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

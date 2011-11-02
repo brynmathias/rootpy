@@ -1,0 +1,650 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.plotting.graph &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.plotting.graph</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">NamelessConstructorObject</span><span class="p">,</span> <span class="n">camelCaseMethods</span><span class="p">,</span> <span class="n">isbasictype</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">Plottable</span>
+<span class="kn">from</span> <span class="nn">..registry</span> <span class="kn">import</span> <span class="n">register</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">add</span><span class="p">,</span> <span class="n">sub</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="nd">@camelCaseMethods</span>
+<span class="nd">@register</span><span class="p">()</span>
+<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">Plottable</span><span class="p">,</span> <span class="n">NamelessConstructorObject</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TGraphAsymmErrors</span><span class="p">):</span>
+
+    <span class="n">DIM</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">npoints</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">efficiency</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">NamelessConstructorObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">hist</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">npoints</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">NamelessConstructorObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">gfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">gfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">NamelessConstructorObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">pointIndex</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot; //&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">pointIndex</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+                    <span class="n">pointIndex</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Set</span><span class="p">(</span><span class="n">pointIndex</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    
+    <span class="k">def</span> <span class="nf">_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="n">Plottable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;graph point index out of range&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;graph point index out of range&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;argument must be a tuple or list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;argument must be of length 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    
+<div class="viewcode-block" id="Graph.x"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.x">[docs]</a>    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Graph.y"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.y">[docs]</a>    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">y</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Graph.errorsx"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsx">[docs]</a>    <span class="k">def</span> <span class="nf">errorsx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">low</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">high</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    </div>
+<div class="viewcode-block" id="Graph.errorsxhigh"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsxhigh">[docs]</a>    <span class="k">def</span> <span class="nf">errorsxhigh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">high</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Graph.errorsxlow"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsxlow">[docs]</a>    <span class="k">def</span> <span class="nf">errorsxlow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">low</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Graph.errorsy"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsy">[docs]</a>    <span class="k">def</span> <span class="nf">errorsy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">low</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">high</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    </div>
+<div class="viewcode-block" id="Graph.errorsyhigh"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsyhigh">[docs]</a>    <span class="k">def</span> <span class="nf">errorsyhigh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">high</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    </div>
+<div class="viewcode-block" id="Graph.errorsylow"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.errorsylow">[docs]</a>    <span class="k">def</span> <span class="nf">errorsylow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">low</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">copy</span> <span class="o">+=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="k">def</span> <span class="nf">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">isbasictype</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs do not contain the same number of points&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">mypoint</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">otherpoint</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">otherpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs are not compatible: must have same x-coordinate values&quot;</span><span class="p">)</span>
+                <span class="c">#xlow = math.sqrt((self.GetEXlow()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="c">#xhigh = math.sqrt((self.GetEXhigh()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="n">xlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">ylow</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">yhigh</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">copy</span> <span class="o">-=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="k">def</span> <span class="nf">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">isbasictype</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs do not contain the same number of points&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">mypoint</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">otherpoint</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">otherpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs are not compatible: must have same x-coordinate values&quot;</span><span class="p">)</span>
+                <span class="c">#xlow = math.sqrt((self.GetEXlow()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="c">#xhigh = math.sqrt((self.GetEXhigh()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="n">xlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">ylow</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">yhigh</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">copy</span> <span class="o">/=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">copy</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Graph.divide"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.divide">[docs]</a>    <span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">consistency</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">__idiv__</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">consistency</span><span class="o">=</span><span class="n">consistency</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tmp</span>
+    </div>
+    <span class="k">def</span> <span class="nf">__idiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">consistency</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">isbasictype</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span> 
+                <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">other</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="o">/</span><span class="n">other</span><span class="p">,</span> <span class="n">yhigh</span><span class="o">/</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span> <span class="n">consistency</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs do not contain the same number of points&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">consistency</span><span class="p">:</span>
+                <span class="n">lowerror</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+                <span class="n">higherror</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">errorsy</span><span class="p">())):</span>
+                    <span class="n">lowerror</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ylow</span><span class="p">)</span>
+                    <span class="n">higherror</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">mypoint</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">consistency</span><span class="p">:</span>
+                    <span class="n">otherpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">other</span><span class="o">.</span><span class="n">Eval</span><span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">xlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">ylow</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">lowerror</span><span class="o">.</span><span class="n">Eval</span><span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">yhigh</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">higherror</span><span class="o">.</span><span class="n">Eval</span><span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">otherpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs are not compatible: must have same x-coordinate values&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">otherpoint</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="c">#xlow = math.sqrt((self.GetEXlow()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                    <span class="c">#xhigh = math.sqrt((self.GetEXhigh()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                    <span class="n">xlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">ylow</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">yhigh</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">copy</span> <span class="o">*=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">copy</span>
+    
+    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">*</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">isbasictype</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span> 
+                <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">other</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="o">*</span><span class="n">other</span><span class="p">,</span> <span class="n">yhigh</span><span class="o">*</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs do not contain the same number of points&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+                <span class="n">mypoint</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">otherpoint</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">otherpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;graphs are not compatible: must have same x-coordinate values&quot;</span><span class="p">)</span>
+                <span class="c">#xlow = math.sqrt((self.GetEXlow()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="c">#xhigh = math.sqrt((self.GetEXhigh()[index])**2 + (other.GetEXlow()[index])**2)</span>
+                <span class="n">xlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">xhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">ylow</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">yhigh</span> <span class="o">=</span> <span class="p">(</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()[</span><span class="n">index</span><span class="p">]</span><span class="o">/</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mypoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">otherpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">xlow</span><span class="p">,</span> <span class="n">xhigh</span><span class="p">,</span> <span class="n">ylow</span><span class="p">,</span> <span class="n">yhigh</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+     
+<div class="viewcode-block" id="Graph.setErrorsFromHist"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.setErrorsFromHist">[docs]</a>    <span class="k">def</span> <span class="nf">setErrorsFromHist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hist</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetNbinsX</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">():</span> <span class="k">return</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">GetNbinsX</span><span class="p">()):</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetBinContent</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">content</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointEYhigh</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointEYlow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointEYlow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">content</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetPointEYhigh</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Graph.GetMaximum"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.GetMaximum">[docs]</a>    <span class="k">def</span> <span class="nf">GetMaximum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_error</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">yMax</span><span class="p">()</span>
+        <span class="n">summed</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">errorsyhigh</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">summed</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Graph.GetMinimum"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.GetMinimum">[docs]</a>    <span class="k">def</span> <span class="nf">GetMinimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_error</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">yMin</span><span class="p">()</span>
+        <span class="n">summed</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">errorsylow</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">summed</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Graph.xMin"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.xMin">[docs]</a>    <span class="k">def</span> <span class="nf">xMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can&#39;t get xmin of empty graph!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TMath</span><span class="o">.</span><span class="n">MinElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">())</span>
+    </div>
+<div class="viewcode-block" id="Graph.xMax"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.xMax">[docs]</a>    <span class="k">def</span> <span class="nf">xMax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can&#39;t get xmax of empty graph!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TMath</span><span class="o">.</span><span class="n">MaxElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Graph.yMin"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.yMin">[docs]</a>    <span class="k">def</span> <span class="nf">yMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can&#39;t get ymin of empty graph!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TMath</span><span class="o">.</span><span class="n">MinElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Graph.yMax"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.yMax">[docs]</a>    <span class="k">def</span> <span class="nf">yMax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can&#39;t get ymax of empty graph!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TMath</span><span class="o">.</span><span class="n">MaxElement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Graph.Crop"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Crop">[docs]</a>    <span class="k">def</span> <span class="nf">Crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove points which lie outside of [x1, x2].</span>
+<span class="sd">        If x1 and/or x2 is below/above the current lowest/highest x-coordinates,</span>
+<span class="sd">        additional points are added to the graph using a linear interpolation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">cropGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+            <span class="n">copyGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cropGraph</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="n">copyGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">xMin</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">x1</span> <span class="o">&lt;</span> <span class="n">xmin</span><span class="p">:</span>
+            <span class="n">cropGraph</span><span class="o">.</span><span class="n">Set</span><span class="p">(</span><span class="n">numPoints</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">numPoints</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">xMax</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">x2</span> <span class="o">&gt;</span> <span class="n">xmax</span><span class="p">:</span>
+            <span class="n">cropGraph</span><span class="o">.</span><span class="n">Set</span><span class="p">(</span><span class="n">numPoints</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">numPoints</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x1</span> <span class="o">&lt;</span> <span class="n">xmin</span><span class="p">:</span>
+                <span class="n">cropGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">Eval</span><span class="p">(</span><span class="n">x1</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">numPoints</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">x2</span> <span class="o">&gt;</span> <span class="n">xmax</span><span class="p">:</span>
+                <span class="n">cropGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">copyGraph</span><span class="o">.</span><span class="n">Eval</span><span class="p">(</span><span class="n">x2</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cropGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">cropGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EXlow</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                                           <span class="n">EYlow</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">cropGraph</span>
+</div>
+<div class="viewcode-block" id="Graph.Reverse"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Reverse">[docs]</a>    <span class="k">def</span> <span class="nf">Reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reverse the order of the points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">revGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">revGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">numPoints</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span>
+            <span class="n">revGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">revGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EXlow</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                                      <span class="n">EYlow</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">revGraph</span>
+         </div>
+<div class="viewcode-block" id="Graph.Invert"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Invert">[docs]</a>    <span class="k">def</span> <span class="nf">Invert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interchange the x and y coordinates of all points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">invGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">invGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="n">invGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">invGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EYlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                      <span class="n">EXlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">invGraph</span>
+ </div>
+<div class="viewcode-block" id="Graph.Scale"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Scale">[docs]</a>    <span class="k">def</span> <span class="nf">Scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scale the graph vertically by value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">GetXmin</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">GetXmax</span><span class="p">()</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">scaleGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scaleGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="n">scaleGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">scaleGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EXlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                        <span class="n">EYlow</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">scaleGraph</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetLimits</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
+        <span class="n">scaleGraph</span><span class="o">.</span><span class="n">GetXaxis</span><span class="p">()</span><span class="o">.</span><span class="n">SetRangeUser</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
+        <span class="n">scaleGraph</span><span class="o">.</span><span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integral</span> <span class="o">*</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">scaleGraph</span>
+</div>
+<div class="viewcode-block" id="Graph.Stretch"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Stretch">[docs]</a>    <span class="k">def</span> <span class="nf">Stretch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stretch the graph horizontally by a factor of value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">stretchGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stretchGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="n">stretchGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">stretchGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EXlow</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">value</span><span class="p">,</span>
+                                          <span class="n">EYlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">stretchGraph</span>
+    </div>
+<div class="viewcode-block" id="Graph.Shift"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Shift">[docs]</a>    <span class="k">def</span> <span class="nf">Shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shift the graph left or right by value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">shiftGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shiftGraph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">EXlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXlow</span><span class="p">()</span>
+        <span class="n">EXhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEXhigh</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="n">EYlow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYlow</span><span class="p">()</span>
+        <span class="n">EYhigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEYhigh</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">numPoints</span><span class="p">):</span>
+            <span class="n">shiftGraph</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">value</span><span class="p">,</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">shiftGraph</span><span class="o">.</span><span class="n">SetPointError</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">EXlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EXhigh</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                        <span class="n">EYlow</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">EYhigh</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">shiftGraph</span>
+        </div>
+<div class="viewcode-block" id="Graph.Integrate"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph.Integrate">[docs]</a>    <span class="k">def</span> <span class="nf">Integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Integrate using the trapazoidal method</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="n">area</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">area</span> <span class="o">+=</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
+        <span class="k">return</span> <span class="n">area</span>
+</div></div>
+<span class="nd">@camelCaseMethods</span>
+<span class="nd">@register</span><span class="p">()</span>
+<div class="viewcode-block" id="Graph2D"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph2D">[docs]</a><span class="k">class</span> <span class="nc">Graph2D</span><span class="p">(</span><span class="n">Plottable</span><span class="p">,</span> <span class="n">NamelessConstructorObject</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TGraph2D</span><span class="p">):</span>
+
+    <span class="n">DIM</span> <span class="o">=</span> <span class="mi">2</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">npoints</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">efficiency</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">NamelessConstructorObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">hist</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">npoints</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">NamelessConstructorObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
+            <span class="c"># bug in TGraph2D???</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Set</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    
+    <span class="k">def</span> <span class="nf">_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="n">Plottable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;graph point index out of range&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetZ</span><span class="p">()[</span><span class="n">index</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetN</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;graph point index out of range&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;argument must be a tuple or list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;argument must be of length 3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    
+<div class="viewcode-block" id="Graph2D.x"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph2D.x">[docs]</a>    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetX</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Graph2D.y"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph2D.y">[docs]</a>    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetY</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">y</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    </div>
+<div class="viewcode-block" id="Graph2D.z"><a class="viewcode-back" href="../../../reference/rootpy.plotting.html#rootpy.plotting.graph.Graph2D.z">[docs]</a>    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetZ</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">z</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

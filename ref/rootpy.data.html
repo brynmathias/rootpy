@@ -1,0 +1,332 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>data Package &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../index.html" />
+    <link rel="up" title="rootpy Package" href="rootpy.html" />
+    <link rel="next" title="hep Package" href="rootpy.hep.html" />
+    <link rel="prev" title="batch Package" href="rootpy.batch.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rootpy.hep.html" title="hep Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rootpy.batch.html" title="batch Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="modules.html" >rootpy</a> &raquo;</li>
+          <li><a href="rootpy.html" accesskey="U">rootpy Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data-package">
+<h1>data Package<a class="headerlink" href="#data-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-rootpy.data.datamanaging">
+<span id="datamanaging-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">datamanaging</span></tt> Module<a class="headerlink" href="#module-rootpy.data.datamanaging" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rootpy.data.datamanaging.DataManager">
+<em class="property">class </em><tt class="descclassname">rootpy.data.datamanaging.</tt><tt class="descname">DataManager</tt><big>(</big><em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.get_object_by_name">
+<tt class="descname">get_object_by_name</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.get_object_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.get_object_by_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.get_sample">
+<tt class="descname">get_sample</tt><big>(</big><em>samplestring</em>, <em>treetype=None</em>, <em>cuts=None</em>, <em>maxEntries=-1</em>, <em>fraction=-1</em>, <em>properties=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.get_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.get_sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.get_samples">
+<tt class="descname">get_samples</tt><big>(</big><em>samplestring</em>, <em>properties=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.get_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.get_samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.get_tree">
+<tt class="descname">get_tree</tt><big>(</big><em>treepath</em>, <em>maxEntries=-1</em>, <em>fraction=-1</em>, <em>cuts=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.get_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.get_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.load">
+<tt class="descname">load</tt><big>(</big><em>filename</em>, <em>metadir=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.normalize_weights">
+<tt class="descname">normalize_weights</tt><big>(</big><em>trees</em>, <em>norm=1.0</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.normalize_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.normalize_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.datamanaging.DataManager.plug">
+<tt class="descname">plug</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/datamanaging.html#DataManager.plug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.datamanaging.DataManager.plug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.data.dataset">
+<span id="dataset-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dataset</span></tt> Module<a class="headerlink" href="#module-rootpy.data.dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rootpy.data.dataset.Dataset">
+<em class="property">class </em><tt class="descclassname">rootpy.data.dataset.</tt><tt class="descname">Dataset</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Dataset(name, title, label, tags, meta, properties, datatype, classtype, weight)</p>
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.classtype">
+<tt class="descname">classtype</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.classtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 7</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.datatype">
+<tt class="descname">datatype</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.datatype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.label">
+<tt class="descname">label</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.meta">
+<tt class="descname">meta</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.name">
+<tt class="descname">name</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.tags">
+<tt class="descname">tags</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.title">
+<tt class="descname">title</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Dataset.weight">
+<tt class="descname">weight</tt><a class="headerlink" href="#rootpy.data.dataset.Dataset.weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 8</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.data.dataset.Fileset">
+<em class="property">class </em><tt class="descclassname">rootpy.data.dataset.</tt><tt class="descname">Fileset</tt><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Fileset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Fileset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rootpy.data.dataset.Fileset" title="rootpy.data.dataset.Fileset"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.data.dataset.Fileset</span></tt></a></p>
+<dl class="method">
+<dt id="rootpy.data.dataset.Fileset.split">
+<tt class="descname">split</tt><big>(</big><em>partitions</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Fileset.split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Fileset.split" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.data.dataset.Namedset">
+<em class="property">class </em><tt class="descclassname">rootpy.data.dataset.</tt><tt class="descname">Namedset</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Namedset(name, title, label, tags, meta, properties)</p>
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.label">
+<tt class="descname">label</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.meta">
+<tt class="descname">meta</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.name">
+<tt class="descname">name</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.tags">
+<tt class="descname">tags</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rootpy.data.dataset.Namedset.title">
+<tt class="descname">title</tt><a class="headerlink" href="#rootpy.data.dataset.Namedset.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.data.dataset.Treeset">
+<em class="property">class </em><tt class="descclassname">rootpy.data.dataset.</tt><tt class="descname">Treeset</tt><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Treeset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Treeset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rootpy.data.dataset.Treeset" title="rootpy.data.dataset.Treeset"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.data.dataset.Treeset</span></tt></a></p>
+<dl class="method">
+<dt id="rootpy.data.dataset.Treeset.Draw">
+<tt class="descname">Draw</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Treeset.Draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Treeset.Draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.dataset.Treeset.GetEntries">
+<tt class="descname">GetEntries</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Treeset.GetEntries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Treeset.GetEntries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.data.dataset.Treeset.Scale">
+<tt class="descname">Scale</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/dataset.html#Treeset.Scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.dataset.Treeset.Scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.data.metadata">
+<span id="metadata-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">metadata</span></tt> Module<a class="headerlink" href="#module-rootpy.data.metadata" title="Permalink to this headline">¶</a></h2>
+<p>Load metadata about datasets from yml (YAML)</p>
+<dl class="function">
+<dt id="rootpy.data.metadata.find_sample">
+<tt class="descclassname">rootpy.data.metadata.</tt><tt class="descname">find_sample</tt><big>(</big><em>samplename</em>, <em>treetype</em>, <em>datasets</em>, <em>objects</em>, <em>label=None</em>, <em>classtype=None</em>, <em>datatype=None</em>, <em>tree_paths=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/metadata.html#find_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.metadata.find_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively find the first dataset with a name matching samplename</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.data.metadata.get_variable_meta">
+<tt class="descclassname">rootpy.data.metadata.</tt><tt class="descname">get_variable_meta</tt><big>(</big><em>name</em>, <em>meta</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/metadata.html#get_variable_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.metadata.get_variable_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.data.metadata.load">
+<tt class="descclassname">rootpy.data.metadata.</tt><tt class="descname">load</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/rootpy/data/metadata.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.data.metadata.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the variable information</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">data Package</a><ul>
+<li><a class="reference internal" href="#module-rootpy.data.datamanaging"><tt class="docutils literal"><span class="pre">datamanaging</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.data.dataset"><tt class="docutils literal"><span class="pre">dataset</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.data.metadata"><tt class="docutils literal"><span class="pre">metadata</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">rootpy</a><ul>
+  <li><a href="rootpy.html">rootpy Package</a><ul>
+      <li>Previous: <a href="rootpy.batch.html" title="previous chapter">batch Package</a></li>
+      <li>Next: <a href="rootpy.hep.html" title="next chapter">hep Package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/rootpy.data.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,266 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.batch.multilogging &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.batch.multilogging</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># Copyright (C) 2010 Vinay Sajip. All Rights Reserved.</span>
+<span class="c">#</span>
+<span class="c"># Permission to use, copy, modify, and distribute this software and its</span>
+<span class="c"># documentation for any purpose and without fee is hereby granted,</span>
+<span class="c"># provided that the above copyright notice appear in all copies and that</span>
+<span class="c"># both that copyright notice and this permission notice appear in</span>
+<span class="c"># supporting documentation, and that the name of Vinay Sajip</span>
+<span class="c"># not be used in advertising or publicity pertaining to distribution</span>
+<span class="c"># of the software without specific, written prior permission.</span>
+<span class="c"># VINAY SAJIP DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING</span>
+<span class="c"># ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL</span>
+<span class="c"># VINAY SAJIP BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR</span>
+<span class="c"># ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER</span>
+<span class="c"># IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT</span>
+<span class="c"># OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</span>
+<span class="c">#</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">An example script showing how to use logging with multiprocessing.</span>
+
+<span class="sd">The basic strategy is to set up a listener process which can have any logging</span>
+<span class="sd">configuration you want - in this example, writing to rotated log files. Because</span>
+<span class="sd">only the listener process writes to the log files, you don&#39;t have file</span>
+<span class="sd">corruption caused by multiple processes trying to write to the file.</span>
+
+<span class="sd">The listener process is initialised with a queue, and waits for logging events</span>
+<span class="sd">(LogRecords) to appear in the queue. When they do, they are processed according</span>
+<span class="sd">to whatever logging configuration is in effect for the listener process.</span>
+
+<span class="sd">Other processes can delegate all logging to the listener process. They can have</span>
+<span class="sd">a much simpler logging configuration: just one handler, a QueueHandler, needs</span>
+<span class="sd">to be added to the root logger. Other loggers in the configuration can be set</span>
+<span class="sd">up with levels and filters to achieve the logging verbosity you need.</span>
+
+<span class="sd">A QueueHandler processes events by sending them to the multiprocessing queue</span>
+<span class="sd">that it&#39;s initialised with.</span>
+
+<span class="sd">In this demo, there are some worker processes which just log some test messages</span>
+<span class="sd">and then exit.</span>
+
+<span class="sd">This script was tested on Ubuntu Jaunty and Windows 7.</span>
+
+<span class="sd">Copyright (C) 2010 Vinay Sajip. All Rights Reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c"># You&#39;ll need these imports in your own code</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.handlers</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+
+<span class="c"># Next two import lines for this demo only</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span><span class="p">,</span> <span class="n">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="stdlog"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stdlog">[docs]</a><span class="k">class</span> <span class="nc">stdlog</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+    
+<div class="viewcode-block" id="stdlog.flush"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stdlog.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="n">handler</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="stdlog.write"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stdlog.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</div></div>
+<div class="viewcode-block" id="stdout"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stdout">[docs]</a><span class="k">class</span> <span class="nc">stdout</span><span class="p">(</span><span class="n">stdlog</span><span class="p">):</span>
+
+<div class="viewcode-block" id="stdout.write"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stdout.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="stderr"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stderr">[docs]</a><span class="k">class</span> <span class="nc">stderr</span><span class="p">(</span><span class="n">stdlog</span><span class="p">):</span>
+    
+<div class="viewcode-block" id="stderr.write"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.stderr.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="QueueHandler"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.QueueHandler">[docs]</a><span class="k">class</span> <span class="nc">QueueHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a logging handler which sends events to a multiprocessing queue.</span>
+<span class="sd">    </span>
+<span class="sd">    The plan is to add it to Python 3.2, but this can be copy pasted into</span>
+<span class="sd">    user code for use with earlier Python versions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise an instance, using the passed queue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+        
+<div class="viewcode-block" id="QueueHandler.emit"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.QueueHandler.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Emit a record.</span>
+
+<span class="sd">        Writes the LogRecord to the queue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ei</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">exc_info</span>
+            <span class="k">if</span> <span class="n">ei</span><span class="p">:</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="c"># just to get traceback text into record.exc_text</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">exc_info</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># not needed any more</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="ne">SystemExit</span><span class="p">):</span>
+            <span class="k">raise</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handleError</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="c">#</span>
+<span class="c"># Because you&#39;ll want to define the logging configurations for listener and workers, the</span>
+<span class="c"># listener and worker process functions take a configurer parameter which is a callable</span>
+<span class="c"># for configuring logging for that process. These functions are also passed the queue,</span>
+<span class="c"># which they use for communication.</span>
+<span class="c">#</span>
+<span class="c"># In practice, you can configure the listener however you want, but note that in this</span>
+<span class="c"># simple example, the listener does not apply level or filter logic to received records.</span>
+<span class="c"># In practice, you would probably want to do ths logic in the worker processes, to avoid</span>
+<span class="c"># sending events which would be filtered out between processes.</span>
+<span class="c">#</span>
+<span class="c"># The size of the rotated files is made small so you can see the results easily.</span>
+    
+<span class="c"># This is the listener process top-level loop: wait for logging events</span>
+<span class="c"># (LogRecords)on the queue and handle them, quit when you get a None for a </span>
+<span class="c"># LogRecord.</span>
+</div></div>
+<div class="viewcode-block" id="Listener"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.Listener">[docs]</a><span class="k">class</span> <span class="nc">Listener</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+   
+<div class="viewcode-block" id="Listener.run"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.multilogging.Listener.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">RotatingFileHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">memoryHandler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">MemoryHandler</span><span class="p">(</span><span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(processName)-10s</span><span class="s"> </span><span class="si">%(name)s</span><span class="s"> </span><span class="si">%(levelname)-8s</span><span class="s"> </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">memoryHandler</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">record</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># We send this as a sentinel to tell the listener to quit.</span>
+                    <span class="k">break</span>
+                <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="c"># No level or filter logic applied - just do it!</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="ne">SystemExit</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">memoryHandler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+                <span class="k">raise</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">traceback</span>
+                <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#39;Whoops! Problem:&#39;</span>
+                <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+        <span class="n">memoryHandler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

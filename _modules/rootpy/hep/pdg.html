@@ -1,0 +1,755 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.hep.pdg &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.hep.pdg</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># $Id: PDG.py,v 1.5 2009-01-26 03:05:43 ssnyder Exp $</span>
+<span class="c"># File: PDG.py</span>
+<span class="c"># Created: sss, Mar 2005</span>
+<span class="c"># Purpose: Define PDG ID codes.</span>
+<span class="c">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains names for the various PDG particle ID codes.</span>
+<span class="sd">The names are the same as in EventKernel/PdtPdg.h.</span>
+
+<span class="sd">This module also contains a dictionary pdgid_names mapping ID codes</span>
+<span class="sd">back to printable strings, and a function pdgid_to_name to do this</span>
+<span class="sd">conversion.  Similarly, root_names and pdgid_to_root_name translate to</span>
+<span class="sd">strings with root markup.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">ROOT</span> <span class="kn">import</span> <span class="n">TDatabasePDG</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">TDatabasePDG</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">ReadPDGTable</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="s">&quot;${ROOTSYS}/etc/pdg_table.txt&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="GetParticle"><a class="viewcode-back" href="../../../reference/rootpy.hep.html#rootpy.hep.pdg.GetParticle">[docs]</a><span class="k">def</span> <span class="nf">GetParticle</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">GetParticle</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+<span class="c"># Table to translate from PDG IDs to printable strings.</span></div>
+<span class="n">pdgid_names</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># Table to translate from PDG IDs to strings with root markup.</span>
+<span class="n">root_names</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="id_to_name"><a class="viewcode-back" href="../../../reference/rootpy.hep.html#rootpy.hep.pdg.id_to_name">[docs]</a><span class="k">def</span> <span class="nf">id_to_name</span> <span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a PDG ID to a printable string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">pdgid_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span> <span class="n">name</span> <span class="o">=</span> <span class="sb">`id`</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+</div>
+<div class="viewcode-block" id="id_to_root_name"><a class="viewcode-back" href="../../../reference/rootpy.hep.html#rootpy.hep.pdg.id_to_root_name">[docs]</a><span class="k">def</span> <span class="nf">id_to_root_name</span> <span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a PDG ID to a string with root markup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">root_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span> <span class="n">name</span> <span class="o">=</span> <span class="sb">`id`</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+<span class="c">#</span>
+<span class="c"># Table of PDG IDs, associating the ID codes with up to several names.</span>
+<span class="c"># This is formatted as one big string to make it easier to maintain</span>
+<span class="c"># (don&#39;t need to quote everything individually).</span>
+<span class="c"># The format of each line is like this:</span>
+<span class="c">#</span>
+<span class="c">#    mname = id     pname   rname</span>
+<span class="c">#</span>
+<span class="c"># An attribute mname will be added to this module with a value of id.</span>
+<span class="c"># These names are intended to match those in PdgPdt.h.</span>
+<span class="c"># pname is a printable name for the entry, and rname is a name</span>
+<span class="c"># with root-style markup.  These names will be put into the pdgid_names</span>
+<span class="c"># and root_names dictionaries, respectively.  They can be left as `!&#39;</span>
+<span class="c"># if no name is available.  pname and rname should not contain spaces.</span>
+<span class="c"># Blank lines or those starting with `#&#39; will be ignored.</span>
+<span class="c">#</span></div>
+<span class="n">_pdgtable</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">d = 1                                 D            d</span>
+<span class="sd">anti_d = -1                           DBAR         #bar{d}</span>
+<span class="sd">u = 2                                 U            u</span>
+<span class="sd">anti_u = -2                           UBAR         #bar{u}</span>
+<span class="sd">s = 3                                 S            s</span>
+<span class="sd">anti_s = -3                           SBAR         #bar{s}</span>
+<span class="sd">c = 4                                 C            c</span>
+<span class="sd">anti_c = -4                           CBAR         #bar{c}</span>
+<span class="sd">b = 5                                 B            b</span>
+<span class="sd">anti_b = -5                           BBAR         #bar{b}</span>
+<span class="sd">t = 6                                 T            t</span>
+<span class="sd">anti_t = -6                           TBAR         #bar{t}</span>
+<span class="sd">l = 7                                 LPRIME       !</span>
+<span class="sd">anti_l = -7                           LPRIMEBAR    !</span>
+<span class="sd">h = 8                                 !            !</span>
+<span class="sd">anti_h = -8                           !            !</span>
+<span class="sd">g = 21                                GLUE         g</span>
+<span class="sd">e_minus = 11                          E-           e^{-}</span>
+<span class="sd">e_plus = -11                          E+           e^{+}</span>
+<span class="sd">nu_e = 12                             NUE          #nu_{e}</span>
+<span class="sd">anti_nu_e = -12                       ANUE         #bar{#nu}_{e}</span>
+<span class="sd">mu_minus = 13                         MU-          #mu^{-}</span>
+<span class="sd">mu_plus = -13                         MU+          #mu^{+}</span>
+<span class="sd">nu_mu = 14                            NUM          #nu_{#mu}</span>
+<span class="sd">anti_nu_mu = -14                      ANUM         #bar{#nu}_{#mu}</span>
+<span class="sd">tau_minus = 15                        TAU-         #tau^{-}</span>
+<span class="sd">tau_plus = -15                        TAU+         #tau^{+}</span>
+<span class="sd">nu_tau = 16                           NUT          #nu_{#tau}</span>
+<span class="sd">anti_nu_tau = -16                     ANUT         #bar{nu}_{#tau}</span>
+<span class="sd">L_minus = 17                          !            !</span>
+<span class="sd">L_plus = -17                          !            !</span>
+<span class="sd">nu_L = 18                             !            !</span>
+<span class="sd">anti_nu_L = -18                       !            !</span>
+<span class="sd">gamma = 22                            PHOT         #gamma</span>
+<span class="sd">Z0 = 23                               Z0           Z</span>
+<span class="sd">W_plus = 24                           W+           W^{+}</span>
+<span class="sd">W_minus = -24                         W-           W^{-}</span>
+<span class="sd">Higgs0 = 25                           H0           h^{0}</span>
+<span class="sd">reggeon = 28                          !            !</span>
+<span class="sd">pomeron = 29                          !            !</span>
+<span class="sd">Z_prime0 = 32                         !            !</span>
+<span class="sd">Z_prime_prime0 = 33                   !            !</span>
+<span class="sd">W_prime_plus = 34                     !            !</span>
+<span class="sd">W_prime_minus = -34                   !            !</span>
+<span class="sd">Higgs_prime0 = 35                     !            !</span>
+<span class="sd">A0 = 36                               !            !</span>
+<span class="sd">Higgs_plus = 37                       !            !</span>
+<span class="sd">Higgs_minus = -37                     !            !</span>
+<span class="sd">R0 = 40                               !            !</span>
+<span class="sd">anti_R0 = -40                         !            !</span>
+<span class="sd">specflav = 81                         !            !</span>
+<span class="sd">rndmflav = 82                         !            !</span>
+<span class="sd">anti_rndmflav = -82                   !            !</span>
+<span class="sd">phasespa = 83                         !            !</span>
+<span class="sd">c_minushadron = 84                    !            !</span>
+<span class="sd">anti_c_minushadron = -84              !            !</span>
+<span class="sd">b_minushadron = 85                    !            !</span>
+<span class="sd">anti_b_minushadron = -85              !            !</span>
+<span class="sd">t_minushadron = 86                    !            !</span>
+<span class="sd">anti_t_minushadron = -86              !            !</span>
+<span class="sd">Wvirt_plus = 89                       !            !</span>
+<span class="sd">Wvirt_minus = -89                     !            !</span>
+<span class="sd">diquark = 90                          !            !</span>
+<span class="sd">anti_diquark = -90                    !            !</span>
+<span class="sd">cluster = 91                          CLUSTER      cluster</span>
+<span class="sd">string = 92                           !            !</span>
+<span class="sd">indep = 93                            !            !</span>
+<span class="sd">CMshower = 94                         !            !</span>
+<span class="sd">SPHEaxis = 95                         !            !</span>
+<span class="sd">THRUaxis = 96                         !            !</span>
+<span class="sd">CLUSjet = 97                          !            !</span>
+<span class="sd">CELLjet = 98                          !            !</span>
+<span class="sd">table = 99                            !            !</span>
+<span class="sd">pi0 = 111                             PI0          #pi^{0}</span>
+<span class="sd">pi_plus = 211                         PI+          #pi^{+}</span>
+<span class="sd">pi_minus = -211                       PI-          #pi^{-}</span>
+<span class="sd">pi_diffr_plus = 210                   !            !</span>
+<span class="sd">pi_diffr_minus = -210                 !            !</span>
+<span class="sd">pi_2S0 = 20111                        !            !</span>
+<span class="sd">pi_2S_plus = 20211                    !            !</span>
+<span class="sd">pi_2S_minus = -20211                  !            !</span>
+<span class="sd">eta = 221                             ETA          #eta</span>
+<span class="sd">eta_2S = 20221                        !            !</span>
+<span class="sd">eta_prime = 331                       !            !</span>
+<span class="sd">rho0 = 113                            !            #rho^{0}</span>
+<span class="sd">rho_plus = 213                        RHO+         #rho^{+}</span>
+<span class="sd">rho_minus = -213                      RHO-         #rho^{-}</span>
+<span class="sd">rho_2S0 = 30113                       !            !</span>
+<span class="sd">rho_2S_plus = 30213                   !            !</span>
+<span class="sd">rho_2S_minus = -30213                 !            !</span>
+<span class="sd">rho_3S0 = 40113                       !            !</span>
+<span class="sd">rho_3S_plus = 40213                   !            !</span>
+<span class="sd">rho_3S_minus = -40213                 !            !</span>
+<span class="sd">omega = 223                           !            !</span>
+<span class="sd">omega_2S = 30223                      !            !</span>
+<span class="sd">phi = 333                             PHI          #phi</span>
+<span class="sd">a_00 = 10111                          !            !</span>
+<span class="sd">a_0_plus = 10211                      !            !</span>
+<span class="sd">a_0_minus = -10211                    !            !</span>
+<span class="sd">f_0 = 10221                           !            !</span>
+<span class="sd">f_prime_0 = 10331                     !            !</span>
+<span class="sd">b_10 = 10113                          !            !</span>
+<span class="sd">b_1_plus = 10213                      !            !</span>
+<span class="sd">b_1_minus = -10213                    !            !</span>
+<span class="sd">h_1 = 10223                           h_1          h_{1}</span>
+<span class="sd">h_prime_1 = 10333                     !            !</span>
+<span class="sd">a_10 = 20113                          !            !</span>
+<span class="sd">a_1_plus = 20213                      !            !</span>
+<span class="sd">a_1_minus = -20213                    !            !</span>
+<span class="sd">f_1 = 20223                           !            !</span>
+<span class="sd">f_prime_1 = 20333                     !            !</span>
+<span class="sd">a_20 = 115                            !            !</span>
+<span class="sd">a_2_plus = 215                        a_2+         a_{2}^{+}</span>
+<span class="sd">a_2_minus = -215                      a_2-         a_{2}^{-}</span>
+<span class="sd">f_2 = 225                             !            !</span>
+<span class="sd">f_prime_2 = 335                       !            !</span>
+<span class="sd">K0 = 311                              K0           K^{0}</span>
+<span class="sd">anti_K0 = -311                        K0BAR        #bar{K}^0</span>
+<span class="sd">K_S0 = 310                            K_S0         K_{S}^{0}</span>
+<span class="sd">K_L0 = 130                            K_L0         K_{L}^{0}</span>
+<span class="sd">K_plus = 321                          K+           K^{+}</span>
+<span class="sd">K_minus = -321                        K-           K^{-}</span>
+<span class="sd">K_star0 = 313                         K*           K^{*}</span>
+<span class="sd">anti_K_star0 = -313                   K*BAR        #bar{K}^{*}</span>
+<span class="sd">K_star_plus = 323                     !            !</span>
+<span class="sd">K_star_minus = -323                   !            !</span>
+<span class="sd">K_0_star0 = 10311                     !            !</span>
+<span class="sd">anti_K_0_star0 = -10311               !            !</span>
+<span class="sd">K_0_star_plus = 10321                 !            !</span>
+<span class="sd">K_0_star_minus = -10321               !            !</span>
+<span class="sd">K_10 = 10313                          !            !</span>
+<span class="sd">anti_K_10 = -10313                    !            !</span>
+<span class="sd">K_1_plus = 10323                      !            !</span>
+<span class="sd">K_1_minus = -10323                    !            !</span>
+<span class="sd">K_2_star0 = 315                       !            !</span>
+<span class="sd">anti_K_2_star0 = -315                 !            !</span>
+<span class="sd">K_2_star_plus = 325                   K_2*+        K_{2}^{*+}</span>
+<span class="sd">K_2_star_minus = -325                 K_2*-        K_{2}^{*-}</span>
+<span class="sd">K_prime_10 = 20313                    !            !</span>
+<span class="sd">anti_K_prime_10 = -20313              !            !</span>
+<span class="sd">K_prime_1_plus = 20323                !            !</span>
+<span class="sd">K_prime_1_minus = -20323              !            !</span>
+<span class="sd">D_plus = 411                          D+           D^{+}</span>
+<span class="sd">D_minus = -411                        D-           D^{-}</span>
+<span class="sd">D0 = 421                              D0           D^{0}</span>
+<span class="sd">anti_D0 = -421                        D0BAR        #bar{D}^{0}</span>
+<span class="sd">D_star_plus = 413                     !            !</span>
+<span class="sd">D_star_minus = -413                   !            !</span>
+<span class="sd">D_star0 = 423                         !            !</span>
+<span class="sd">anti_D_star0 = -423                   !            !</span>
+<span class="sd">D_0_star_plus = 10411                 !            !</span>
+<span class="sd">D_0_star_minus = -10411               !            !</span>
+<span class="sd">D_0_star0 = 10421                     !            !</span>
+<span class="sd">anti_D_0_star0 = -10421               !            !</span>
+<span class="sd">D_1_plus = 10413                      !            !</span>
+<span class="sd">D_1_minus = -10413                    !            !</span>
+<span class="sd">D_10 = 10423                          !            !</span>
+<span class="sd">anti_D_10 = -10423                    !            !</span>
+<span class="sd">D_2_star_plus = 415                   !            !</span>
+<span class="sd">D_2_star_minus = -415                 !            !</span>
+<span class="sd">D_2_star0 = 425                       !            !</span>
+<span class="sd">anti_D_2_star0 = -425                 !            !</span>
+<span class="sd">D_prime_1_plus = 20413                !            !</span>
+<span class="sd">D_prime_1_minus = -20413              !            !</span>
+<span class="sd">D_prime_10 = 20423                    !            !</span>
+<span class="sd">anti_D_prime_10 = -20423              !            !</span>
+<span class="sd">D_s_plus = 431                        D_S+         D_{s}^{+}</span>
+<span class="sd">D_s_minus = -431                      D_S-         D_{s}^{-}</span>
+<span class="sd">D_s_star_plus = 433                   !            !</span>
+<span class="sd">D_s_star_minus = -433                 !            !</span>
+<span class="sd">D_s0_star_plus = 10431                !            !</span>
+<span class="sd">D_s0_star_minus = -10431              !            !</span>
+<span class="sd">D_s1_plus = 10433                     !            !</span>
+<span class="sd">D_s1_minus = -10433                   !            !</span>
+<span class="sd">D_s2_star_plus = 435                  !            !</span>
+<span class="sd">D_s2_star_minus = -435                !            !</span>
+<span class="sd">D_prime_s1_plus = 20433               !            !</span>
+<span class="sd">D_prime_s1_minus = -20433             !            !</span>
+<span class="sd">B0 = 511                              B0           B^{0}</span>
+<span class="sd">anti_B0 = -511                        B0BAR        #bar{B}^{0}</span>
+<span class="sd">B_plus = 521                          B+           B^{+}</span>
+<span class="sd">B_minus = -521                        B-           B^{-}</span>
+<span class="sd">B_star0 = 513                         !            !</span>
+<span class="sd">anti_B_star0 = -513                   !            !</span>
+<span class="sd">B_star_plus = 523                     !            !</span>
+<span class="sd">B_star_minus = -523                   !            !</span>
+<span class="sd">B_0_star0 = 10511                     !            !</span>
+<span class="sd">anti_B_0_star0 = -10511               !            !</span>
+<span class="sd">B_0_star_plus = 10521                 !            !</span>
+<span class="sd">B_0_star_minus = -10521               !            !</span>
+<span class="sd">B_10 = 10513                          !            !</span>
+<span class="sd">anti_B_10 = -10513                    !            !</span>
+<span class="sd">B_1_plus = 10523                      !            !</span>
+<span class="sd">B_1_minus = -10523                    !            !</span>
+<span class="sd">B_2_star0 = 515                       !            !</span>
+<span class="sd">anti_B_2_star0 = -515                 !            !</span>
+<span class="sd">B_2_star_plus = 525                   !            !</span>
+<span class="sd">B_2_star_minus = -525                 !            !</span>
+<span class="sd">B_prime_10 = 20513                    !            !</span>
+<span class="sd">anti_B_prime_10 = -20513              !            !</span>
+<span class="sd">B_prime_1_plus = 20523                !            !</span>
+<span class="sd">B_prime_1_minus = -20523              !            !</span>
+<span class="sd">B_s0 = 531                            B_S0         B_{s}^{0}</span>
+<span class="sd">anti_B_s0 = -531                      B_S0BAR      #bar{B}_{s}^{0}</span>
+<span class="sd">B_s_star0 = 533                       !            !</span>
+<span class="sd">anti_B_s_star0 = -533                 !            !</span>
+<span class="sd">B_s0_star0 = 10531                    !            !</span>
+<span class="sd">anti_B_s0_star0 = -10531              !            !</span>
+<span class="sd">B_s10 = 10533                         !            !</span>
+<span class="sd">anti_B_s10 = -10533                   !            !</span>
+<span class="sd">B_s2_star0 = 535                      !            !</span>
+<span class="sd">anti_B_s2_star0 = -535                !            !</span>
+<span class="sd">B_prime_s10 = 20533                   !            !</span>
+<span class="sd">anti_B_prime_s10 = -20533             !            !</span>
+<span class="sd">B_c_plus = 541                        BC+          B_{c}^{+}</span>
+<span class="sd">B_c_minus = -541                      BC-          B_{c}^{-}</span>
+<span class="sd">B_c_star_plus = 543                   BC*+         B_{c}^{*+}</span>
+<span class="sd">B_c_star_minus = -543                 BC*-         B_{c}^{*-}</span>
+<span class="sd">B_c0_star_plus = 10541                !            !</span>
+<span class="sd">B_c0_star_minus = -10541              !            !</span>
+<span class="sd">B_c1_plus = 10543                     !            !</span>
+<span class="sd">B_c1_minus = -10543                   !            !</span>
+<span class="sd">B_c2_star_plus = 545                  !            !</span>
+<span class="sd">B_c2_star_minus = -545                !            !</span>
+<span class="sd">B_prime_c1_plus = 20543               !            !</span>
+<span class="sd">B_prime_c1_minus = -20543             !            !</span>
+<span class="sd">eta_c = 441                           !            !</span>
+<span class="sd">eta_c_2S = 20441                      !            !</span>
+<span class="sd">J_psi = 443                           JPSI         J/#psi</span>
+<span class="sd">psi_2S = 20443                        !            !</span>
+<span class="sd">chi_c0 = 10441                        !            !</span>
+<span class="sd">chi_c1 = 10443                        !            !</span>
+<span class="sd">chi_c2 = 445                          !            !</span>
+<span class="sd">eta_b_2S = 20551                      !            !</span>
+<span class="sd">eta_b_3S = 40551                      !            !</span>
+<span class="sd">Upsilon = 553                         !            !</span>
+<span class="sd">Upsilon_2S = 20553                    !            !</span>
+<span class="sd">Upsilon_3S = 60553                    !            !</span>
+<span class="sd">Upsilon_4S = 70553                    !            !</span>
+<span class="sd">Upsilon_5S = 80553                    !            !</span>
+<span class="sd">h_b = 10553                           !            !</span>
+<span class="sd">h_b_2P = 40553                        !            !</span>
+<span class="sd">h_b_3P = 100553                       !            !</span>
+<span class="sd">chi_b0 = 551                          !            !</span>
+<span class="sd">chi_b1 = 20553                        !            !</span>
+<span class="sd">chi_b2 = 555                          !            !</span>
+<span class="sd">chi_b0_2P = 30551                     !            !</span>
+<span class="sd">chi_b1_2P = 50553                     !            !</span>
+<span class="sd">chi_b2_2P = 10555                     !            !</span>
+<span class="sd">chi_b0_3P = 50551                     !            !</span>
+<span class="sd">chi_b1_3P = 110553                    !            !</span>
+<span class="sd">chi_b2_3P = 20555                     !            !</span>
+<span class="sd">eta_b2_1D = 40555                     !            !</span>
+<span class="sd">eta_b2_2D = 60555                     !            !</span>
+<span class="sd">Upsilon_1_1D = 120553                 !            !</span>
+<span class="sd">Upsilon_2_1D = 30555                  !            !</span>
+<span class="sd">Upsilon_3_1D = 557                    !            !</span>
+<span class="sd">Upsilon_1_2D = 130553                 !            !</span>
+<span class="sd">Upsilon_2_2D = 50555                  !            !</span>
+<span class="sd">Upsilon_3_2D = 10557                  !            !</span>
+<span class="sd">Delta_minus = 1114                    DELTA-       #Delta^{-}</span>
+<span class="sd">anti_Delta_plus = -1114               DELTA+       #Delta^{+}</span>
+<span class="sd">n_diffr = 2110                        !            !</span>
+<span class="sd">anti_n_diffr = -2110                  !            !</span>
+<span class="sd">n0 = 2112                             N            n</span>
+<span class="sd">anti_n0 = -2112                       NBAR         #bar{n}</span>
+<span class="sd">Delta0 = 2114                         !            !</span>
+<span class="sd">anti_Delta0 = -2114                   !            !</span>
+<span class="sd">p_diffr_plus = 2210                   !            !</span>
+<span class="sd">anti_p_diffr_minus = -2210            !            !</span>
+<span class="sd">p_plus = 2212                         P+           p^{+}</span>
+<span class="sd">anti_p_minus = -2212                  P-           p^{-}</span>
+<span class="sd">Delta_plus = 2214                     !            !</span>
+<span class="sd">anti_Delta_minus = -2214              !            !</span>
+<span class="sd">Delta_plus_plus = 2224                !            !</span>
+<span class="sd">anti_Delta_minus_minus = -2224        !            !</span>
+<span class="sd">Sigma_minus = 3112                    SIGMA-       #Sigma^{-}</span>
+<span class="sd">anti_Sigma_plus = -3112               SIGMABAR+    #bar{#Sigma}^{+}</span>
+<span class="sd">Sigma_star_minus = 3114               !            !</span>
+<span class="sd">anti_Sigma_star_plus = -3114          !            !</span>
+<span class="sd">Lambda0 = 3122                        LAMBDA_D0    #Lambda^{0}</span>
+<span class="sd">anti_Lambda0 = -3122                  LAMBDABAR_D0 #bar{#Lambda}^{0}</span>
+<span class="sd">Sigma0 = 3212                         !            !</span>
+<span class="sd">anti_Sigma0 = -3212                   !            !</span>
+<span class="sd">Sigma_star0 = 3214                    !            !</span>
+<span class="sd">anti_Sigma_star0 = -3214              !            !</span>
+<span class="sd">Sigma_plus = 3222                     SIGMA+       #Sigma^{+}</span>
+<span class="sd">anti_Sigma_minus = -3222              SIGMABAR-    #bar{#Sigma}^{-}</span>
+<span class="sd">Sigma_star_plus = 3224                !            !</span>
+<span class="sd">anti_Sigma_star_minus = -3224         !            !</span>
+<span class="sd">Xi_minus = 3312                       XI-          #Xi^{-}</span>
+<span class="sd">anti_Xi_plus = -3312                  XI+          #Xi^{+}</span>
+<span class="sd">Xi_star_minus = 3314                  !            !</span>
+<span class="sd">anti_Xi_star_plus = -3314             !            !</span>
+<span class="sd">Xi0 = 3322                            XI0          #Xi^{0}</span>
+<span class="sd">anti_Xi0 = -3322                      XIBAR0       #bar{Xi}^{0}</span>
+<span class="sd">Xi_star0 = 3324                       !            !</span>
+<span class="sd">anti_Xi_star0 = -3324                 !            !</span>
+<span class="sd">Omega_minus = 3334                    !            !</span>
+<span class="sd">anti_Omega_plus = -3334               !            !</span>
+<span class="sd">Sigma_c0 = 4112                       !            !</span>
+<span class="sd">anti_Sigma_c0 = -4112                 !            !</span>
+<span class="sd">Sigma_c_star0 = 4114                  SIGMA_C0*    #Sigma_{c}^{*0}</span>
+<span class="sd">anti_Sigma_c_star0 = -4114            SIGMABAR_C0* #bar{#Sigma}_{c}^{*0}</span>
+<span class="sd">Lambda_c_plus = 4122                  LAMBDA_C+    #Lambda_{c}^{+}</span>
+<span class="sd">anti_Lambda_c_minus = -4122           LAMBDA_C-    #Lambda_{c}^{-}</span>
+<span class="sd">Xi_c0 = 4132                          XI_C0        #Xi_{c}^{0}</span>
+<span class="sd">anti_Xi_c0 = -4132                    XIBAR_C0     #bar{#Xi}_{c}^{0}</span>
+<span class="sd">Sigma_c_plus = 4212                   SIGMA_C+     #Sigma_{c}^{+}</span>
+<span class="sd">anti_Sigma_c_minus = -4212            SIGMA_C-     #Sigma_{c}^{-}</span>
+<span class="sd">Sigma_c_star_plus = 4214              SIGMA_C+*    #Sigma_{c}^{*+}</span>
+<span class="sd">anti_Sigma_c_star_minus = -4214       SIGMA_C-*    #Sigma_{c}^{*-}</span>
+<span class="sd">Sigma_c_plus_plus = 4222              SIGMA_C++    #Sigma_{c}^{++}</span>
+<span class="sd">anti_Sigma_c_minus_minus = -4222      SIGMA_C--    #Sigma_{c}^{--}</span>
+<span class="sd">Sigma_c_star_plus_plus = 4224         SIGMA_C++*   #Sigma_{c}^{*++}</span>
+<span class="sd">anti_Sigma_c_star_minus_minus = -4224 SIGMA_C--*   #Sigma_{c}^{*--}</span>
+<span class="sd">Xi_c_plus = 4322                      XI_C+        #Xi_{c}^{+}</span>
+<span class="sd">anti_Xi_c_minus = -4322               XI_C-        #Xi_{c}^{-}</span>
+<span class="sd">Xi_prime_c0 = 4312                    XI&#39;_C0       #Xi\&#39;_{c}^{0}</span>
+<span class="sd">Xi_primeanti__c0 = -4312              XIBAR&#39;_C0    #bar{#Xi}\&#39;_{c}^{0}</span>
+<span class="sd">Xi_c_star0 = 4314                     XI_C0*       #Xi_{c}^{*0}</span>
+<span class="sd">anti_Xi_c_star0 = -4314               XIBAR_C0*    #bar{#Xi}_{c}^{*0}</span>
+<span class="sd">Xi_prime_c_plus = 4232                XI&#39;_C+       #Xi\&#39;_{c}^{+}</span>
+<span class="sd">Xi_primeanti__c_minus = -4232         XIBAR&#39;_C-    #Xi\&#39;_{c}^{-}</span>
+<span class="sd">Xi_c_star_plus = 4324                 XI_C+*       #Xi_{c}^{*+}</span>
+<span class="sd">anti_Xi_c_star_minus = -4324          XI_C-*       #Xi_{c}^{*-}</span>
+<span class="sd">Omega_c0 = 4332                       OMEGA_C0     #Omega_{c}^{0}</span>
+<span class="sd">anti_Omega_c0 = -4332                 OMEGABAR_C0  #bar{#Omega}_{c}^{0}</span>
+<span class="sd">Omega_c_star0 = 4334                  OMEGA_C0*    #Omega_{c}^{*0}</span>
+<span class="sd">anti_Omega_c_star0 = -4334            OMEGA_C0*    #bar{#Omega}_{c}^{*0}</span>
+<span class="sd">Sigma_b_minus = 5112                  SIGMA_B-     #Sigma_{b}^{-}&#39;</span>
+<span class="sd">anti_Sigma_b_plus = -5112             SIGMA_B+     #Sigma_{b}^{+}&#39;</span>
+<span class="sd">Sigma_b_star_minus = 5114             !            !</span>
+<span class="sd">anti_Sigma_b_star_plus = -5114        !            !</span>
+<span class="sd">Lambda_b0 = 5122                      LAMBDA_B0    #Lambda_{b}^{0}</span>
+<span class="sd">anti_Lambda_b0 = -5122                LAMBDA_B0BAR #bar{#Lambda}_{b}^0</span>
+<span class="sd">Xi_b_minus = 5132                     !            !</span>
+<span class="sd">anti_Xi_b_plus = -5132                !            !</span>
+<span class="sd">Sigma_b0 = 5212                       SIGMA_B0     #Sigma_{b}^{0}</span>
+<span class="sd">anti_Sigma_b0 = -5212                 SIGMABAR_B0  #bar{#Sigma}_{b}^{0}</span>
+<span class="sd">Sigma_b_star0 = 5214                  !            !</span>
+<span class="sd">anti_Sigma_b_star0 = -5214            !            !</span>
+<span class="sd">Sigma_b_plus = 5222                   !            !</span>
+<span class="sd">anti_Sigma_b_minus = -5222            !            !</span>
+<span class="sd">Sigma_star_ = 5224                    !            !</span>
+<span class="sd">anti_Sigma_b_star_minus = -5224       !            !</span>
+<span class="sd">Xi_b0 = 5232                          XI_B0        #Xi_b^{0}</span>
+<span class="sd">anti_Xi_b0 = -5232                    XIBAR_B0     #bar{#Xi}_b^{0}</span>
+<span class="sd">Xi_prime_b_minus = 5312               !            !</span>
+<span class="sd">anti_Xi_prime_b_plus = -5312          !            !</span>
+<span class="sd">Xi_b_star_minus = 5314                !            !</span>
+<span class="sd">anti_Xi_b_star_plus = -5314           !            !</span>
+<span class="sd">Xi_prime_b0 = 5322                    !            !</span>
+<span class="sd">anti_Xi_prime_b0 = -5322              !            !</span>
+<span class="sd">Xi_b_star0 = 5324                     !            !</span>
+<span class="sd">anti_Xi_b_star0 = -5324               !            !</span>
+<span class="sd">Omega_b_minus = 5332                  !            !</span>
+<span class="sd">anti_Omega_b_plus = -5332             !            !</span>
+<span class="sd">Omega_b_star_minus = 5334             !            !</span>
+<span class="sd">anti_Omega_b_star_plus = -5334        !            !</span>
+<span class="sd">dd_0 = 1101                           !            !</span>
+<span class="sd">anti_dd_0 = -1101                     !            !</span>
+<span class="sd">ud_0 = 2101                           UD0          !</span>
+<span class="sd">anti_ud_0 = -2101                     UD0BAR       !</span>
+<span class="sd">uu_0 = 2201                           !            !</span>
+<span class="sd">anti_uu_0 = -2201                     !            !</span>
+<span class="sd">sd_0 = 3101                           !            !</span>
+<span class="sd">anti_sd_0 = -3101                     !            !</span>
+<span class="sd">su_0 = 3201                           !            !</span>
+<span class="sd">anti_su_0 = -3201                     !            !</span>
+<span class="sd">ss_0 = 3301                           !            !</span>
+<span class="sd">anti_ss_0 = -3301                     !            !</span>
+<span class="sd">cd_0 = 4101                           !            !</span>
+<span class="sd">anti_cd_0 = -4101                     !            !</span>
+<span class="sd">cu_0 = 4201                           !            !</span>
+<span class="sd">anti_cu_0 = -4201                     !            !</span>
+<span class="sd">cs_0 = 4301                           !            !</span>
+<span class="sd">anti_cs_0 = -4301                     !            !</span>
+<span class="sd">cc_0 = 4401                           !            !</span>
+<span class="sd">anti_cc_0 = -4401                     !            !</span>
+<span class="sd">bd_0 = 5101                           !            !</span>
+<span class="sd">anti_bd_0 = -5101                     !            !</span>
+<span class="sd">bu_0 = 5201                           !            !</span>
+<span class="sd">anti_bu_0 = -5201                     !            !</span>
+<span class="sd">bs_0 = 5301                           !            !</span>
+<span class="sd">anti_bs_0 = -5301                     !            !</span>
+<span class="sd">bc_0 = 5401                           !            !</span>
+<span class="sd">anti_bc_0 = -5401                     !            !</span>
+<span class="sd">bb_0 = 5501                           !            !</span>
+<span class="sd">anti_bb_0 = -5501                     !            !</span>
+<span class="sd">dd_1 = 1103                           !            !</span>
+<span class="sd">anti_dd_1 = -1103                     !            !</span>
+<span class="sd">ud_1 = 2103                           !            !</span>
+<span class="sd">anti_ud_1 = -2103                     !            !</span>
+<span class="sd">uu_1 = 2203                           !            !</span>
+<span class="sd">anti_uu_1 = -2203                     !            !</span>
+<span class="sd">sd_1 = 3103                           !            !</span>
+<span class="sd">anti_sd_1 = -3103                     !            !</span>
+<span class="sd">su_1 = 3203                           !            !</span>
+<span class="sd">anti_su_1 = -3203                     !            !</span>
+<span class="sd">ss_1 = 3303                           !            !</span>
+<span class="sd">anti_ss_1 = -3303                     !            !</span>
+<span class="sd">cd_1 = 4103                           !            !</span>
+<span class="sd">anti_cd_1 = -4103                     !            !</span>
+<span class="sd">cu_1 = 4203                           !            !</span>
+<span class="sd">anti_cu_1 = -4203                     !            !</span>
+<span class="sd">cs_1 = 4303                           !            !</span>
+<span class="sd">anti_cs_1 = -4303                     !            !</span>
+<span class="sd">cc_1 = 4403                           !            !</span>
+<span class="sd">anti_cc_1 = -4403                     !            !</span>
+<span class="sd">bd_1 = 5103                           !            !</span>
+<span class="sd">anti_bd_1 = -5103                     !            !</span>
+<span class="sd">bu_1 = 5203                           !            !</span>
+<span class="sd">anti_bu_1 = -5203                     !            !</span>
+<span class="sd">bs_1 = 5303                           !            !</span>
+<span class="sd">anti_bs_1 = -5303                     !            !</span>
+<span class="sd">bc_1 = 5403                           !            !</span>
+<span class="sd">anti_bc_1 = -5403                     !            !</span>
+<span class="sd">bb_1 = 5503                           !            !</span>
+<span class="sd">anti_bb_1 = -5503                     !            !</span>
+
+<span class="sd"># SUSY Particles names modified from /Control/AthenaCommon/PDGTABLE.MeV</span>
+<span class="sd"># naming convention change</span>
+<span class="sd">#      &#39;~&#39; to &#39;s_&#39;</span>
+<span class="sd">#      &#39;(&#39; to &#39;_&#39;</span>
+<span class="sd">#      &#39;)&#39; to nothing</span>
+<span class="sd">#      &#39;+&#39; to &#39;plus&#39;</span>
+<span class="sd">#      &#39;&#39; to &#39;_&#39;</span>
+<span class="sd">#      for the negatively charged particles so I add &quot;minus&quot; to the name and a corresponding &quot;plus&quot; entry with -pdg code</span>
+<span class="sd">#      for the neutrals I add a corresponding &quot;anti&quot; entry with -pdg code</span>
+<span class="sd">#      for the particles with positive charge entries I add a corresponding &quot;minus&quot; entry with -pdg code</span>
+<span class="sd"># ************ (the above is not consistent with the convention that minus=particle plus=anti-particle</span>
+<span class="sd">#</span>
+<span class="sd">#      Next remove Majorana particles and rename L-R stau to mass eigenstates.</span>
+<span class="sd">#</span>
+<span class="sd">#      This is all ugly but sort of consistent with previous naming convention</span>
+
+<span class="sd">s_e_minus_L    =1000011               !            !</span>
+<span class="sd">s_e_plus_L     =-1000011              !            !</span>
+
+<span class="sd">s_nu_e_L       =1000012               !            !</span>
+<span class="sd">s_anti_nu_e_L  =-1000012              !            !</span>
+
+<span class="sd">s_mu_minus_L   =1000013               !            !</span>
+<span class="sd">s_mu_plus_L    =-1000013              !            !</span>
+
+<span class="sd">s_nu_mu_L      =1000014               !            !</span>
+<span class="sd">s_anti_nu_mu_L =-1000014              !            !</span>
+
+<span class="sd">#    s_tau_minus_L  =1000015</span>
+<span class="sd">#    s_tau_plus_L   =-1000015</span>
+
+<span class="sd"># L-R mixing significant use _1 and _2 for names instead</span>
+<span class="sd">s_tau_minus_1  =1000015               !            !</span>
+<span class="sd">s_tau_plus_1   =-1000015              !            !</span>
+
+<span class="sd">s_nu_tau_L     =1000016               !            !</span>
+<span class="sd">s_anti_nu_tau_L=-1000016              !            !</span>
+
+<span class="sd">s_e_minus_R    =2000011               !            !</span>
+<span class="sd">s_e_plus_R     =-2000011              !            !</span>
+
+<span class="sd">s_mu_minus_R   =2000013               !            !</span>
+<span class="sd">s_mu_plus_R    =-2000013              !            !</span>
+
+<span class="sd">s_tau_minus_2  =2000015               !            !</span>
+<span class="sd">s_tau_plus_2   =-2000015              !            !</span>
+
+<span class="sd">s_g            =1000021               !            !</span>
+<span class="sd">#    s_anti_g       =-1000021 # Majorana</span>
+
+<span class="sd">s_chi_0_1      =1000022               !            !</span>
+<span class="sd">#    s_anti_chi_0_1 =-1000022 # Majorana</span>
+
+<span class="sd">s_chi_0_2      =1000023               !            !</span>
+<span class="sd">#    s_anti_chi_0_2 =-1000023 # Majorana</span>
+
+<span class="sd">s_chi_plus_1   =1000024               !            !</span>
+<span class="sd"># Majorana</span>
+<span class="sd">s_chi_minus_1  =-1000024              !            !</span>
+
+<span class="sd">s_chi_0_3      =1000025               !            !</span>
+<span class="sd">#    s_anti_chi_0_3 =-1000025 # Majorana</span>
+
+<span class="sd">s_chi_0_4      =1000035               !            !</span>
+<span class="sd">#    s_anti_chi_0_4 =-1000035 # Majorana</span>
+
+<span class="sd">s_chi_plus_2   =1000037               !            !</span>
+<span class="sd">s_chi_minus_2  =-1000037              !            !</span>
+
+<span class="sd">s_G            =1000039               !            !</span>
+<span class="sd">#    s_anti_G       =-1000039 # Majorana</span>
+
+<span class="sd"># note mismatch with PDGTable and pre-existing PdtPdg.h</span>
+<span class="sd">#M     999                          0.E+00         +0.0E+00 -0.0E+00 Geantino        0</span>
+<span class="sd">#W     999                          0.E+00         +0.0E+00 -0.0E+00 Geantino        0</span>
+
+<span class="sd"># doubly charged Higgs</span>
+<span class="sd">Higgs_plus_plus_L = 9900041           !            !</span>
+<span class="sd">Higgs_minus_minus_L = -9900041        !            !</span>
+<span class="sd">Higgs_plus_plus_R = 9900042           !            !</span>
+<span class="sd">Higgs_minus_minus_R = -9900042        !            !</span>
+
+
+<span class="sd"># Null particles</span>
+<span class="sd">deuteron = 0                          !            !</span>
+<span class="sd">tritium = 0                           !            !</span>
+<span class="sd">alpha = 0                             !            !</span>
+<span class="sd">geantino = 0                          !            !</span>
+<span class="sd">He3 = 0                               !            !</span>
+<span class="sd">Cerenkov = 0                          !            !</span>
+<span class="sd">null = 0                              !            !</span>
+
+
+<span class="sd"># Some extra particles that weren&#39;t in PdgPdt.h</span>
+<span class="sd">Xi_cc_plus = 4412                     XI_CC+       #Xi_{cc}^{+}</span>
+<span class="sd">anti_Xi_cc_minus = -4412              XI_CC-       #Xi_{cc}^{-}</span>
+<span class="sd">Xi_cc_plus_plus = 4422                XI_CC++      #Xi_{cc}^{++}</span>
+<span class="sd">anti_Xi_cc_minus_minus = -4422        XI_CC--      #Xi_{cc}^{--}</span>
+<span class="sd">Xi_cc_star_plus = 4414                XI_CC+*      #Xi_{cc}^{*+}</span>
+<span class="sd">anti_Xi_cc_star_minus = -4414         XI_CC-*      #Xi_{cc}^{*-}</span>
+<span class="sd">Xi_cc_star_plus_plus = 4424           XI_CC++*     #Xi_{cc}^{*++}</span>
+<span class="sd">anti_Xi_cc_star_minus_minus = -4424   XI_CC--*     #Xi_{cc}^{*--}</span>
+<span class="sd">Omega_cc_plus = 4432                  OMEGA_CC+    #Omega_{cc}^{+}</span>
+<span class="sd">anti_Omega_cc_minus = -4432           OMEGA_CC-    #Omega_{cc}^{-}</span>
+<span class="sd">Omega_cc_star_plus = 4434             OMEGA_CC+*   #Omega_{cc}^{*+}</span>
+<span class="sd">anti_Omega_cc_star_minus = -4434      OMEGA_CC-*   #Omega_{cc}^{*-}</span>
+<span class="sd">Omega_ccc_plus_plus = 4444            OMEGA_CCC++  #Omega_{ccc}^{++}</span>
+<span class="sd">anti_Omega_ccc_minus_minus = -4444    OMEGA_CCC--  #Omega_{ccc}^{--}</span>
+
+
+<span class="sd"># A couple extra synonyms that weren&#39;t in PdgPdt.h.</span>
+<span class="sd">e = e_minus                           !            !</span>
+<span class="sd">mu = mu_minus                         !            !</span>
+<span class="sd">tau = tau_minus                       !            !</span>
+<span class="sd">W = W_plus                            !            !</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c"># Parse _pdgtable and fill in dictionaries.</span>
+<span class="k">def</span> <span class="nf">_fill_dicts</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">string</span>
+    <span class="n">pdgid_names</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">root_names</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_pdgtable</span><span class="o">.</span><span class="n">split</span> <span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;#&#39;</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="n">ll</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;bad line&#39;</span><span class="p">,</span> <span class="n">line</span>
+            <span class="k">continue</span>
+        <span class="n">mname</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">ll</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ll</span> <span class="o">=</span> <span class="n">ll</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;bad line&#39;</span><span class="p">,</span> <span class="n">line</span>
+            <span class="k">continue</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">ll</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pname</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">ll</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;!&#39;</span><span class="p">:</span>
+            <span class="n">pname</span> <span class="o">=</span> <span class="n">ll</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">rname</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">ll</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;!&#39;</span><span class="p">:</span>
+            <span class="n">rname</span> <span class="o">=</span> <span class="n">ll</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;bad line&#39;</span><span class="p">,</span> <span class="n">line</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">pname</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">pname</span> <span class="o">=</span> <span class="n">mname</span>
+        <span class="k">if</span> <span class="n">rname</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">rname</span> <span class="o">=</span> <span class="n">pname</span>
+
+        <span class="nb">globals</span><span class="p">()[</span><span class="n">mname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pdgid_names</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">pdgid_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">pname</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">root_names</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">root_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">rname</span>
+    <span class="k">return</span>
+
+<span class="c"># Fill the dictionaries.</span>
+<span class="n">_fill_dicts</span><span class="p">()</span>
+
+<span class="c"># Kill these now to save memory.</span>
+<span class="k">del</span> <span class="n">_pdgtable</span>
+<span class="k">del</span> <span class="n">_fill_dicts</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,164 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.measure &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.measure</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module containing scale factors for physical quantities</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">yotta</span>   <span class="o">=</span> <span class="mf">1E24</span>
+<span class="n">zetta</span>   <span class="o">=</span> <span class="mf">1E21</span>
+<span class="n">exa</span>     <span class="o">=</span> <span class="mf">1E18</span>
+<span class="n">peta</span>    <span class="o">=</span> <span class="mf">1E15</span>
+<span class="n">tera</span>    <span class="o">=</span> <span class="mf">1E12</span>
+<span class="n">giga</span>    <span class="o">=</span> <span class="mf">1E9</span>
+<span class="n">mega</span>    <span class="o">=</span> <span class="mf">1E6</span>
+<span class="n">kilo</span>    <span class="o">=</span> <span class="mf">1E3</span>
+<span class="n">hecto</span>   <span class="o">=</span> <span class="mf">1E2</span>
+<span class="n">deka</span>    <span class="o">=</span> <span class="mf">1E1</span>
+<span class="n">deci</span>    <span class="o">=</span> <span class="mf">1E-1</span>
+<span class="n">centi</span>   <span class="o">=</span> <span class="mf">1E-2</span>
+<span class="n">milli</span>   <span class="o">=</span> <span class="mf">1E-3</span>
+<span class="n">micro</span>   <span class="o">=</span> <span class="mf">1E-6</span>
+<span class="n">nano</span>    <span class="o">=</span> <span class="mf">1E-9</span>
+<span class="n">pico</span>    <span class="o">=</span> <span class="mf">1E-12</span>
+<span class="n">femto</span>   <span class="o">=</span> <span class="mf">1E-15</span>
+<span class="n">atto</span>    <span class="o">=</span> <span class="mf">1E-18</span>
+<span class="n">zepto</span>   <span class="o">=</span> <span class="mf">1E-21</span>
+<span class="n">yocto</span>   <span class="o">=</span> <span class="mf">1E-24</span>
+
+<span class="n">prefix</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;Y&#39;</span>  <span class="p">:</span> <span class="n">yotta</span><span class="p">,</span>
+    <span class="s">&#39;Z&#39;</span>  <span class="p">:</span> <span class="n">zetta</span><span class="p">,</span>
+    <span class="s">&#39;E&#39;</span>  <span class="p">:</span> <span class="n">exa</span><span class="p">,</span>
+    <span class="s">&#39;P&#39;</span>  <span class="p">:</span> <span class="n">peta</span><span class="p">,</span>
+    <span class="s">&#39;T&#39;</span>  <span class="p">:</span> <span class="n">tera</span><span class="p">,</span>
+    <span class="s">&#39;G&#39;</span>  <span class="p">:</span> <span class="n">giga</span><span class="p">,</span>
+    <span class="s">&#39;M&#39;</span>  <span class="p">:</span> <span class="n">mega</span><span class="p">,</span>
+    <span class="s">&#39;k&#39;</span>  <span class="p">:</span> <span class="n">kilo</span><span class="p">,</span>
+    <span class="s">&#39;h&#39;</span>  <span class="p">:</span> <span class="n">hecto</span><span class="p">,</span>
+    <span class="s">&#39;da&#39;</span> <span class="p">:</span> <span class="n">deka</span><span class="p">,</span>
+    <span class="s">&#39;d&#39;</span>  <span class="p">:</span> <span class="n">deci</span><span class="p">,</span>
+    <span class="s">&#39;c&#39;</span>  <span class="p">:</span> <span class="n">centi</span><span class="p">,</span>
+    <span class="s">&#39;m&#39;</span>  <span class="p">:</span> <span class="n">milli</span><span class="p">,</span>
+    <span class="s">&#39;#mu&#39;</span><span class="p">:</span> <span class="n">micro</span><span class="p">,</span>
+    <span class="s">&#39;mu&#39;</span> <span class="p">:</span> <span class="n">micro</span><span class="p">,</span>
+    <span class="s">&#39;n&#39;</span>  <span class="p">:</span> <span class="n">nano</span><span class="p">,</span>
+    <span class="s">&#39;p&#39;</span>  <span class="p">:</span> <span class="n">pico</span><span class="p">,</span>
+    <span class="s">&#39;f&#39;</span>  <span class="p">:</span> <span class="n">femto</span><span class="p">,</span>
+    <span class="s">&#39;a&#39;</span>  <span class="p">:</span> <span class="n">atto</span><span class="p">,</span>
+    <span class="s">&#39;z&#39;</span>  <span class="p">:</span> <span class="n">zepto</span><span class="p">,</span>
+    <span class="s">&#39;y&#39;</span>  <span class="p">:</span> <span class="n">yocto</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.measure.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the factor required to multiply the</span>
+<span class="sd">    origin by to express in terms of target</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">origin_scale</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">prefix</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">origin</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">origin_scale</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">break</span>
+    <span class="n">target_scale</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">prefix</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">target_scale</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">origin_scale</span> <span class="o">/</span> <span class="n">target_scale</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,925 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.tree.tree &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.tree.tree</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">ROOT</span> <span class="kn">import</span> <span class="n">TTreeCache</span><span class="p">,</span> <span class="n">gROOT</span>
+<span class="kn">from</span> <span class="nn">..types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">Object</span><span class="p">,</span> <span class="n">camelCaseMethods</span>
+<span class="kn">from</span> <span class="nn">..plotting.core</span> <span class="kn">import</span> <span class="n">Plottable</span>
+<span class="kn">from</span> <span class="nn">..registry</span> <span class="kn">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">lookup_by_name</span><span class="p">,</span> <span class="n">lookup_demotion</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">asrootpy</span><span class="p">,</span> <span class="n">create</span>
+<span class="kn">from</span> <span class="nn">..io</span> <span class="kn">import</span> <span class="nb">open</span> <span class="k">as</span> <span class="n">ropen</span><span class="p">,</span> <span class="n">DoesNotExist</span>
+<span class="kn">from</span> <span class="nn">.filtering</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.treeobject</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="TreeModelMeta"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta">[docs]</a><span class="k">class</span> <span class="nc">TreeModelMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+        
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">TreeModelMeta</span><span class="o">.</span><span class="n">checkattr</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span> 
+    
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">__name__</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">other</span><span class="p">),</span> <span class="p">{})</span>
+
+    <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__add__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">())</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">())))</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">__name__</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="n">TreeModel</span><span class="p">,),</span> <span class="n">attrs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__sub__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+    
+    
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="n">TreeModelMeta</span><span class="o">.</span><span class="n">checkattr</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="nb">type</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TreeModelMeta.checkattr"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta.checkattr">[docs]</a>    <span class="k">def</span> <span class="nf">checkattr</span><span class="p">(</span><span class="n">metacls</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">,</span>
+                                  <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">,</span>
+                                  <span class="nb">classmethod</span><span class="p">,</span>
+                                  <span class="nb">staticmethod</span><span class="p">,</span>
+                                  <span class="nb">property</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s">&#39;dummy&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,),</span> <span class="p">{}))</span> <span class="o">+</span> \
+                    <span class="p">[</span><span class="s">&#39;__metaclass__&#39;</span><span class="p">]:</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s">&quot;TreeModel attribute &#39;</span><span class="si">%s</span><span class="s">&#39; &quot;</span>
+                                  <span class="s">&quot;must not start with &#39;_&#39;&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Column</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;TreeModel attribute &#39;</span><span class="si">%s</span><span class="s">&#39; &quot;</span>
+                                    <span class="s">&quot;must be an instance of &quot;</span>
+                                    <span class="s">&quot;rootpy.types.Column&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">TObject</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">ObjectProxy</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;TreeModel attribute &#39;</span><span class="si">%s</span><span class="s">&#39; must inherit &quot;</span>
+                                <span class="s">&quot;from ROOT.TObject or ROOT.ObjectProxy&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+     </div>
+<div class="viewcode-block" id="TreeModelMeta.prefix"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta.prefix">[docs]</a>    <span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">name</span> <span class="o">+</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">TreeModelMeta</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="n">TreeModel</span><span class="p">,),</span> <span class="n">attrs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TreeModelMeta.suffix"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta.suffix">[docs]</a>    <span class="k">def</span> <span class="nf">suffix</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">attr</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">TreeModelMeta</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="n">TreeModel</span><span class="p">,),</span> <span class="n">attrs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TreeModelMeta.get_attrs"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta.get_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_attrs</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="n">boring</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s">&#39;dummy&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,),</span> <span class="p">{}))</span> <span class="o">+</span> \
+                 <span class="p">[</span><span class="s">&#39;__metaclass__&#39;</span><span class="p">]</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boring</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">,</span>
+                                             <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">,</span>
+                                             <span class="nb">classmethod</span><span class="p">,</span>
+                                             <span class="nb">staticmethod</span><span class="p">,</span>
+                                             <span class="nb">property</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="n">attrs</span>
+        </div>
+<div class="viewcode-block" id="TreeModelMeta.to_struct"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModelMeta.to_struct">[docs]</a>    <span class="k">def</span> <span class="nf">to_struct</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert model into a C struct then compile</span>
+<span class="sd">        and import with ROOT</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">basic_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Column</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">basic_attrs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="s">&#39;struct </span><span class="si">%s</span><span class="s"> {&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">basic_attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">src</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">typename</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
+        <span class="n">src</span> <span class="o">+=</span> <span class="s">&#39;};&#39;</span>
+        <span class="k">if</span> <span class="n">gROOT</span><span class="o">.</span><span class="n">ProcessLine</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">exec</span> <span class="s">&#39;from ROOT import </span><span class="si">%s</span><span class="s">; struct = </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">struct</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+     </div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        
+        <span class="n">out</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">():</span>
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">out</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> -&gt; </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="TreeModel"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeModel">[docs]</a><span class="k">class</span> <span class="nc">TreeModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">TreeModelMeta</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a TreeBuffer for this TreeModel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">buffer</span> <span class="o">=</span> <span class="n">TreeBuffer</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">():</span>
+            <span class="nb">buffer</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">buffer</span>
+
+</div>
+<span class="nd">@camelCaseMethods</span>
+<span class="nd">@register</span><span class="p">()</span>
+<div class="viewcode-block" id="Tree"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree">[docs]</a><span class="k">class</span> <span class="nc">Tree</span><span class="p">(</span><span class="n">Object</span><span class="p">,</span> <span class="n">Plottable</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TTree</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inherits from TTree so all regular TTree methods are available</span>
+<span class="sd">    but Draw has been overridden to improve usage in Python</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">draw_command</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;^.+&gt;&gt;[\+]?(?P&lt;name&gt;[^(]+).*$&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="n">Object</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">TreeBuffer</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">TreeModel</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;the model must subclass TreeModel&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_buffer</span><span class="p">(</span><span class="n">model</span><span class="p">(),</span> <span class="n">create_branches</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;buffer&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">TreeBuffer</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_buffer</span><span class="p">())</span>
+        <span class="n">Plottable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cache</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="Tree.always_read"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.always_read">[docs]</a>    <span class="k">def</span> <span class="nf">always_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branches</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;branches must be a list or tuple&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span> <span class="o">=</span> <span class="n">branches</span>
+    </div>
+<div class="viewcode-block" id="Tree.use_cache"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.use_cache">[docs]</a>    <span class="k">def</span> <span class="nf">use_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">10000000</span><span class="p">,</span> <span class="n">learn_entries</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">set_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetCacheSize</span><span class="p">(</span><span class="n">cache_size</span><span class="p">)</span>
+            <span class="n">TTreeCache</span><span class="o">.</span><span class="n">SetLearnEntries</span><span class="p">(</span><span class="n">learn_entries</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">set_tree</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetCacheSize</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Tree.branch_type"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.branch_type">[docs]</a>    <span class="k">def</span> <span class="nf">branch_type</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        
+        <span class="n">typename</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">GetClassName</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">typename</span><span class="p">:</span>
+            <span class="n">typename</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">GetListOfLeaves</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTypeName</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">typename</span>
+    </div>
+<div class="viewcode-block" id="Tree.create_buffer"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.create_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">create_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="nb">buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterbranches</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetBranchStatus</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">GetName</span><span class="p">()):</span>
+                <span class="nb">buffer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">branch</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span> <span class="n">Tree</span><span class="o">.</span><span class="n">branch_type</span><span class="p">(</span><span class="n">branch</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">TreeBuffer</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.create_branches"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.create_branches">[docs]</a>    <span class="k">def</span> <span class="nf">create_branches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branches</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span> <span class="n">TreeBuffer</span><span class="p">):</span>
+            <span class="n">branches</span> <span class="o">=</span> <span class="n">TreeBuffer</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_branches_from_buffer</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+ </div>
+<div class="viewcode-block" id="Tree.GetEntry"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.GetEntry">[docs]</a>    <span class="k">def</span> <span class="nf">GetEntry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">reset_collections</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TTree</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    </div>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cache</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">LoadTree</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c"># one-time hit</span>
+                        <span class="n">branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetBranch</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">branch</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                                <span class="s">&quot;branch </span><span class="si">%s</span><span class="s"> specified in &quot;</span>
+                                <span class="s">&quot;&#39;always_read&#39; does not exist&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">branch</span>
+                        <span class="n">branch</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">next_entry</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">reset_collections</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="s">&#39;_initialized&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="ow">or</span> \
+           <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Tree</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s">&quot;</span><span class="si">%s</span><span class="s"> instance has no attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+    
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> instance has no attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+    
+<div class="viewcode-block" id="Tree.update_buffer"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.update_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">update_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">set_objects</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="nb">buffer</span>
+</div>
+<div class="viewcode-block" id="Tree.set_buffer"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.set_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">set_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">buffer</span><span class="p">,</span>
+                   <span class="n">variables</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                   <span class="n">create_branches</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                   <span class="n">visible</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                   <span class="n">ignore_missing</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                   <span class="n">transfer_object</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                   <span class="n">transfer_collections</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">create_branches</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">buffer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_branch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s">&quot;Attempting to create two branches &quot;</span>
+                        <span class="s">&quot;with the same name: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Branch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Branch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">buffer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_branch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">SetBranchAddress</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">ignore_missing</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s">&quot;Attempting to set address for &quot;</span>
+                        <span class="s">&quot;branch </span><span class="si">%s</span><span class="s"> which does not exist&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">visible</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="n">newbuffer</span> <span class="o">=</span> <span class="n">TreeBuffer</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="nb">buffer</span><span class="p">:</span>
+                        <span class="n">newbuffer</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="nb">buffer</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+                <span class="nb">buffer</span> <span class="o">=</span> <span class="n">newbuffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_buffer</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.activate"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.activate">[docs]</a>    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">exclusive</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">exclusive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_branch</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.deactivate"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.deactivate">[docs]</a>    <span class="k">def</span> <span class="nf">deactivate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">exclusive</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">exclusive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_branch</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SetBranchStatus</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">item</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;entry index out of range&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+    
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Tree.branches"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.branches">[docs]</a>    <span class="k">def</span> <span class="nf">branches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">return</span> <span class="p">[</span><span class="n">branch</span> <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">()]</span>
+    </div>
+<div class="viewcode-block" id="Tree.iterbranches"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.iterbranches">[docs]</a>    <span class="k">def</span> <span class="nf">iterbranches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">branch</span>
+    </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Tree.branchnames"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.branchnames">[docs]</a>    <span class="k">def</span> <span class="nf">branchnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">return</span> <span class="p">[</span><span class="n">branch</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">()]</span>
+</div>
+<div class="viewcode-block" id="Tree.iterbranchnames"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.iterbranchnames">[docs]</a>    <span class="k">def</span> <span class="nf">iterbranchnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterbranches</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">branch</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="Tree.glob"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.glob">[docs]</a>    <span class="k">def</span> <span class="nf">glob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of branch names that match pattern.</span>
+<span class="sd">        Exclude all matched branch names which also match a pattern in prune.</span>
+<span class="sd">        prune may be a string or list of strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterbranchnames</span><span class="p">(),</span> <span class="n">pattern</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prune</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prune</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="n">prune</span> <span class="o">=</span> <span class="p">[</span><span class="n">prune</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">prune_pattern</span> <span class="ow">in</span> <span class="n">prune</span><span class="p">:</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">match</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span>
+                           <span class="k">if</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">prune_pattern</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">matches</span>
+    </div>
+<div class="viewcode-block" id="Tree.has_branch"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.has_branch">[docs]</a>    <span class="k">def</span> <span class="nf">has_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="ow">not</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetBranch</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.csv"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.csv">[docs]</a>    <span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="n">include_labels</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print csv representation of tree only including branches</span>
+<span class="sd">        of basic types (no objects, vectors, etc..)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">branches</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">branches</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">include_labels</span><span class="p">:</span>
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">branches</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">stream</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span>
+                                       <span class="ow">in</span> <span class="n">branches</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    </div>
+<div class="viewcode-block" id="Tree.Scale"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.Scale">[docs]</a>    <span class="k">def</span> <span class="nf">Scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span> <span class="o">*</span> <span class="n">value</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.GetEntries"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.GetEntries">[docs]</a>    <span class="k">def</span> <span class="nf">GetEntries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">weighted_cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">weighted</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">weighted_cut</span><span class="p">:</span>
+            <span class="n">hist</span> <span class="o">=</span> <span class="n">Hist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">==</span><span class="si">%s</span><span class="s">&gt;&gt;</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetName</span><span class="p">()),</span>
+                      <span class="n">weighted_cut</span> <span class="o">*</span> <span class="n">cut</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">Integral</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">cut</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TTree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TTree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">entries</span> 
+    </div>
+<div class="viewcode-block" id="Tree.GetMaximum"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.GetMaximum">[docs]</a>    <span class="k">def</span> <span class="nf">GetMaximum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">cut</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="s">&quot;goff&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;goff&quot;</span><span class="p">)</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetV1</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetSelectedRows</span><span class="p">()</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">10000</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Tree.GetMinimum"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.GetMinimum">[docs]</a>    <span class="k">def</span> <span class="nf">GetMinimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">cut</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">cut</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="s">&quot;goff&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;goff&quot;</span><span class="p">)</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetV1</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetSelectedRows</span><span class="p">()</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">10000</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Tree.reset"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="Tree.Fill"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.Fill">[docs]</a>    <span class="k">def</span> <span class="nf">Fill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Tree</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">Fill</span><span class="p">()</span>
+        <span class="c"># reset all branches</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="Tree.Draw"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.Tree.Draw">[docs]</a>    <span class="k">def</span> <span class="nf">Draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">hist</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a TTree with a selection as usual, but return the created histogram.</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">Tree</span><span class="o">.</span><span class="n">draw_command</span><span class="p">,</span> <span class="n">expression</span><span class="p">)</span>
+            <span class="n">histname</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">histname</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+                <span class="n">hist_exists</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gDirectory</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">histname</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expression</span> <span class="o">+=</span> <span class="s">&quot;&gt;&gt;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hist</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="n">ROOT</span><span class="o">.</span><span class="n">TTree</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">histname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">hist</span> <span class="o">=</span> <span class="n">asrootpy</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gDirectory</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">histname</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hist</span> <span class="o">=</span> <span class="n">asrootpy</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gPad</span><span class="o">.</span><span class="n">GetPrimitive</span><span class="p">(</span><span class="s">&quot;htemp&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">hist</span>
+
+</div></div>
+<div class="viewcode-block" id="TreeChain"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeChain">[docs]</a><span class="k">class</span> <span class="nc">TreeChain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A replacement for TChain</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span>
+                 <span class="nb">buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">branches</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">events</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+                 <span class="n">onfilechange</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">usecache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">cache_size</span><span class="o">=</span><span class="mi">10000000</span><span class="p">,</span>
+                 <span class="n">learn_entries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">always_read</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">files</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">files</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="nb">buffer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="n">branches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filters</span> <span class="o">=</span> <span class="n">EventFilterList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userdata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">events</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_events</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
+         
+        <span class="k">if</span> <span class="n">onfilechange</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filechange_hooks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filechange_hooks</span> <span class="o">=</span> <span class="n">onfilechange</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">usecache</span> <span class="o">=</span> <span class="n">usecache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span> <span class="o">=</span> <span class="n">cache_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learn_entries</span> <span class="o">=</span> <span class="n">learn_entries</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s">&quot;unable to initialize TreeChain: no files given&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollover</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;unable to initialize TreeChain&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">always_read</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">always_read</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">always_read</span><span class="p">:</span>
+                <span class="n">always_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">always_read</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">always_read</span> <span class="o">=</span> <span class="p">[</span><span class="n">always_read</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">always_read</span><span class="p">(</span><span class="n">always_read</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">always_read</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">branch</span><span class="p">:</span>
+                    <span class="n">branchs</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">branchs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">always_read</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="TreeChain.always_read"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeChain.always_read">[docs]</a>    <span class="k">def</span> <span class="nf">always_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branches</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span> <span class="o">=</span> <span class="n">branches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">always_read</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+     </div>
+    <span class="k">def</span> <span class="nf">__rollover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%i</span><span class="s"> file(s) remaining...&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+            <span class="n">fileName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">ropen</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="s">&quot;WARNING: Skipping file. &quot;</span> \
+                                      <span class="s">&quot;Could not open file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fileName</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollover</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">DoesNotExist</span><span class="p">:</span>
+                <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="s">&quot;WARNING: Skipping file. &quot;</span> \
+                                      <span class="s">&quot;Tree </span><span class="si">%s</span><span class="s"> does not exist in file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+                                      <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollover</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">GetListOfBranches</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="s">&quot;WARNING: skipping tree with &quot;</span> \
+                                      <span class="s">&quot;no branches in file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fileName</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollover</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">,</span> <span class="n">exclusive</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">buffer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">set_buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">ignore_missing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">set_objects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">buffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">use_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_cache</span><span class="p">,</span>
+                                <span class="n">cache_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span><span class="p">,</span>
+                                <span class="n">learn_entries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">learn_entries</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">always_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_always_read</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">args</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filechange_hooks</span><span class="p">:</span>
+                <span class="n">target</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> instance has no attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">passed_events</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">total_entries</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">())</span>
+            <span class="n">t2</span> <span class="o">=</span> <span class="n">t1</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">:</span>
+                <span class="n">entries</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">userdata</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">entry</span>
+                    <span class="n">passed_events</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">==</span> <span class="n">passed_events</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t2</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> \
+                        <span class="s">&quot;</span><span class="si">%i</span><span class="s"> entries per second. </span><span class="si">%.0f%%</span><span class="s"> done current tree.&quot;</span> <span class="o">%</span> \
+                        <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entries</span> <span class="o">/</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)),</span>
+                        <span class="mi">100</span> <span class="o">*</span> <span class="n">entries</span> <span class="o">/</span> <span class="n">total_entries</span><span class="p">)</span>
+                    <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">==</span> <span class="n">passed_events</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%i</span><span class="s"> entries per second&quot;</span> <span class="o">%</span> \
+                <span class="nb">int</span><span class="p">(</span><span class="n">entries</span> <span class="o">/</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span>
+            <span class="k">print</span> <span class="s">&quot;Read </span><span class="si">%i</span><span class="s"> bytes in </span><span class="si">%i</span><span class="s"> transactions&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">GetBytesRead</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">GetReadCalls</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_events</span> <span class="o">+=</span> <span class="n">entries</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollover</span><span class="p">():</span>
+                <span class="k">break</span>
+
+</div>
+<div class="viewcode-block" id="TreeBuffer"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer">[docs]</a><span class="k">class</span> <span class="nc">TreeBuffer</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dictionary mapping variable names to values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__process</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tree</span> <span class="o">=</span> <span class="n">tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TreeBuffer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userdata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__initialised</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">processed</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vtype</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">methods</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Illegal variable name: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">processed</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Duplicate variable name </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">processed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            
+            <span class="c"># try to lookup type in registry</span>
+            <span class="n">cls</span><span class="p">,</span> <span class="n">inits</span> <span class="o">=</span> <span class="n">lookup_by_name</span><span class="p">(</span><span class="n">vtype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">init</span> <span class="ow">in</span> <span class="n">inits</span><span class="p">:</span>
+                    <span class="n">init</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># last resort: try to create ROOT.&#39;vtype&#39;</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="n">vtype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Unsupported variable type&quot;</span>
+                                <span class="s">&quot; for branch </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">vtype</span><span class="p">))</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+<div class="viewcode-block" id="TreeBuffer.reset"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">ObjectProxy</span><span class="p">):</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TreeBuffer.flat"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.flat">[docs]</a>    <span class="k">def</span> <span class="nf">flat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="n">flat_variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">demotion</span> <span class="o">=</span> <span class="n">lookup_demotion</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">demotion</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;Variable </span><span class="si">%s</span><span class="s"> of type </span><span class="si">%s</span><span class="s"> was not previously registered&quot;</span> <span class="o">%</span> \
+                    <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+            <span class="n">flat_variables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">var</span><span class="p">,</span> <span class="n">demotion</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">TreeBuffer</span><span class="p">(</span><span class="n">flat_variables</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="TreeBuffer.update"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">TreeBuffer</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__process</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TreeBuffer.set_tree"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.set_tree">[docs]</a>    <span class="k">def</span> <span class="nf">set_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">Tree</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;tree must be a Tree instance or None&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tree</span> <span class="o">=</span> <span class="n">tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span> <span class="o">=</span> <span class="mi">0</span>
+    </div>
+<div class="viewcode-block" id="TreeBuffer.next_entry"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.next_entry">[docs]</a>    <span class="k">def</span> <span class="nf">next_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span> <span class="o">+=</span> <span class="mi">1</span>
+     </div>
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maps attributes to values.</span>
+<span class="sd">        Only if we are initialised</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># this test allows attributes to be set in the __init__ method</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&quot;_</span><span class="si">%s</span><span class="s">__initialised&quot;</span> <span class="o">%</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TreeBuffer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+            <span class="c"># any normal attributes are handled normally</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TreeBuffer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                <span class="n">variable</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;cannot set non-Variable type &quot;</span>
+                            <span class="s">&quot;attribute &#39;</span><span class="si">%s</span><span class="s">&#39; of </span><span class="si">%s</span><span class="s"> instance&quot;</span> <span class="o">%</span> \
+                            <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> instance has no attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+   
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c"># one-time hit</span>
+                    <span class="n">branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">GetBranch</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">branch</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">AttributeError</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_branch_cache</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">branch</span>
+                    <span class="n">branch</span><span class="o">.</span><span class="n">GetEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_entry</span><span class="p">)</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">variable</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="n">variable</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> instance has no attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
+                                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+    
+<div class="viewcode-block" id="TreeBuffer.reset_collections"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.reset_collections">[docs]</a>    <span class="k">def</span> <span class="nf">reset_collections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">():</span>
+            <span class="n">coll</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> 
+    </div>
+<div class="viewcode-block" id="TreeBuffer.define_collection"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.define_collection">[docs]</a>    <span class="k">def</span> <span class="nf">define_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="n">coll</span> <span class="o">=</span> <span class="n">TreeCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="n">mix</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">coll</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collections</span><span class="p">[</span><span class="n">coll</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">mix</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="TreeBuffer.define_object"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.define_object">[docs]</a>    <span class="k">def</span> <span class="nf">define_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="n">cls</span> <span class="o">=</span> <span class="n">TreeObject</span>
+        <span class="k">if</span> <span class="n">mix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span> <span class="o">=</span> <span class="n">mix_treeobject</span><span class="p">(</span><span class="n">mix</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">TreeObject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objects</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">mix</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TreeBuffer.set_objects"><a class="viewcode-back" href="../../../reference/rootpy.tree.html#rootpy.tree.tree.TreeBuffer.set_objects">[docs]</a>    <span class="k">def</span> <span class="nf">set_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_objects</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">define_object</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_collections</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">define_collection</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    </div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">rep</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">rep</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> ==&gt; </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rep</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

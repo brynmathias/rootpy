@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.io.file &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.io.file</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module enhances IO-related ROOT functionality</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">camelCaseMethods</span>
+<span class="kn">from</span> <span class="nn">..registry</span> <span class="kn">import</span> <span class="n">register</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">asrootpy</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">VALIDPATH</span> <span class="o">=</span> <span class="s">&#39;^(?P&lt;file&gt;.+.root)(?:[/](?P&lt;path&gt;.+))?$&#39;</span>
+
+
+<div class="viewcode-block" id="DoesNotExist"><a class="viewcode-back" href="../../../reference/rootpy.io.html#rootpy.io.file.DoesNotExist">[docs]</a><span class="k">class</span> <span class="nc">DoesNotExist</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="wrap_path_handling"><a class="viewcode-back" href="../../../reference/rootpy.io.html#rootpy.io.file.wrap_path_handling">[docs]</a><span class="k">def</span> <span class="nf">wrap_path_handling</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        
+        <span class="n">_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_name</span> <span class="o">==</span> <span class="s">&#39;.&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="n">_name</span> <span class="o">==</span> <span class="s">&#39;..&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">dir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">_name</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s">&#39;..&#39;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_dir</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_dir</span><span class="p">,</span> <span class="n">_DirectoryBase</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">DoesNotExist</span>
+                    <span class="n">_dir</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="bp">self</span>
+                    <span class="n">_dir</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span>
+                    <span class="n">thing</span> <span class="o">=</span> <span class="n">_dir</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">thing</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_DirectoryBase</span><span class="p">):</span>
+                    <span class="n">thing</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_DirectoryBase</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">File</span><span class="p">):</span>
+                    <span class="n">thing</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">((</span><span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">_name</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">thing</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">_name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">thing</span>
+        <span class="k">except</span> <span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DoesNotExist</span><span class="p">(</span><span class="s">&quot;requested path &#39;</span><span class="si">%s</span><span class="s">&#39; does not exist in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">get</span>
+
+</div>
+<span class="k">class</span> <span class="nc">_DirectoryBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A mixin (can&#39;t stand alone). To be improved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls :func:`rootpy.io.utils.walk`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Natural naming support.</span>
+<span class="sd">        Now you can get an object from a File/Directory with</span>
+<span class="sd">        myfile.somedir.otherdir.histname</span>
+
+<span class="sd">        Must be careful here... if __getattr__ ends up being called</span>
+<span class="sd">        in Get this can end up in an &quot;infinite&quot; recursion and stack overflow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            
+    
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    
+    <span class="nd">@wrap_path_handling</span>
+    <span class="k">def</span> <span class="nf">Get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attempt to convert requested object into rootpy form</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">thing</span> <span class="o">=</span> <span class="n">asrootpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__bases__</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">thing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DoesNotExist</span>
+        <span class="k">return</span> <span class="n">thing</span>
+    
+    <span class="nd">@wrap_path_handling</span>
+    <span class="k">def</span> <span class="nf">GetDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a Directory object rather than TDirectory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">asrootpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__bases__</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">GetDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">dir</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DoesNotExist</span>
+        <span class="k">return</span> <span class="nb">dir</span>
+
+    
+<span class="nd">@camelCaseMethods</span>
+<span class="nd">@register</span><span class="p">()</span>
+<div class="viewcode-block" id="Directory"><a class="viewcode-back" href="../../../reference/rootpy.io.html#rootpy.io.file.Directory">[docs]</a><span class="k">class</span> <span class="nc">Directory</span><span class="p">(</span><span class="n">_DirectoryBase</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TDirectoryFile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inherits from TDirectory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">ROOT</span><span class="o">.</span><span class="n">TDirectoryFile</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="bp">None</span>
+
+    
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(&#39;</span><span class="si">%s</span><span class="s">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span>
+
+</div>
+<span class="nd">@camelCaseMethods</span>
+<div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../reference/rootpy.io.html#rootpy.io.file.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">_DirectoryBase</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inherits from Directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="bp">self</span>
+    
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">False</span> 
+    
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(&#39;</span><span class="si">%s</span><span class="s">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="open"><a class="viewcode-back" href="../../../reference/rootpy.io.html#rootpy.io.file.open">[docs]</a><span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="nb">file</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">TFile</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">file</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;No such file: &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span><span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">__class__</span> <span class="o">=</span> <span class="n">File</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="nb">file</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="nb">file</span>
+    <span class="k">return</span> <span class="nb">file</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

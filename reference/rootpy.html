@@ -1,0 +1,604 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy Package &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../index.html" />
+    <link rel="up" title="rootpy" href="modules.html" />
+    <link rel="next" title="batch Package" href="rootpy.batch.html" />
+    <link rel="prev" title="rootpy" href="modules.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rootpy.batch.html" title="batch Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="rootpy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="modules.html" accesskey="U">rootpy</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rootpy-package">
+<h1>rootpy Package<a class="headerlink" href="#rootpy-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-rootpy.classfactory">
+<span id="classfactory-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">classfactory</span></tt> Module<a class="headerlink" href="#module-rootpy.classfactory" title="Permalink to this headline">¶</a></h2>
+<p>This module handles dictionary generation of classes for use
+in the Python environment. Dictionaried are kept in
+$ROOTPY_DATA for later use so they are not repeatedly regenerated</p>
+<dl class="function">
+<dt id="rootpy.classfactory.generate">
+<tt class="descclassname">rootpy.classfactory.</tt><tt class="descname">generate</tt><big>(</big><em>declaration</em>, <em>headers=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/classfactory.html#generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.classfactory.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.common">
+<span id="common-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">common</span></tt> Module<a class="headerlink" href="#module-rootpy.common" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.common.animate_pads">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">animate_pads</tt><big>(</big><em>pads</em>, <em>filename=None</em>, <em>loop=True</em>, <em>delay=50</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#animate_pads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.animate_pads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.closest">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">closest</tt><big>(</big><em>target</em>, <em>collection</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#closest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.closest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.draw">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">draw</tt><big>(</big><em>objects</em>, <em>pad=None</em>, <em>title=None</em>, <em>axislabels=None</em>, <em>legend=None</em>, <em>showlegend=True</em>, <em>greedylegend=False</em>, <em>textlabels=None</em>, <em>xscale='linear'</em>, <em>yscale='linear'</em>, <em>style2d='col'</em>, <em>style3d='surf1'</em>, <em>maxmin=()</em>, <em>minmax=None</em>, <em>minimum=0</em>, <em>maximum=None</em>, <em>use_global_margins=True</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.drawGraphs">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">drawGraphs</tt><big>(</big><em>pad</em>, <em>graphs</em>, <em>title</em>, <em>xtitle</em>, <em>ytitle</em>, <em>legend=None</em>, <em>label=None</em>, <em>format='png'</em>, <em>xmin=None</em>, <em>xmax=None</em>, <em>ymin=None</em>, <em>ymax=None</em>, <em>yscale='log'</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#drawGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.drawGraphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.drawObject">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">drawObject</tt><big>(</big><em>pad</em>, <em>object</em>, <em>options=''</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#drawObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.drawObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.draw_samples">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">draw_samples</tt><big>(</big><em>samples</em>, <em>expression</em>, <em>hist=None</em>, <em>cuts=None</em>, <em>weighted=True</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#draw_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.draw_samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.draw_trees">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">draw_trees</tt><big>(</big><em>trees</em>, <em>expression</em>, <em>hist=None</em>, <em>cuts=None</em>, <em>weighted=True</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#draw_trees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.draw_trees" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getGraphs">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getGraphs</tt><big>(</big><em>inputFile</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getGraphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getHistos">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getHistos</tt><big>(</big><em>inputFile</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getHistos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getHistos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getNumEntries">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getNumEntries</tt><big>(</big><em>trees</em>, <em>cuts=None</em>, <em>weighted=True</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getNumEntries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getNumEntries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getNumEntriesWeightedSelection">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getNumEntriesWeightedSelection</tt><big>(</big><em>trees</em>, <em>cuts</em>, <em>weighted=True</em>, <em>branch=None</em>, <em>minimum=None</em>, <em>maximum=None</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getNumEntriesWeightedSelection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getNumEntriesWeightedSelection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getObjectNames">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getObjectNames</tt><big>(</big><em>inputFile</em>, <em>className</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getObjectNames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getObjectNames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getObjects">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getObjects</tt><big>(</big><em>inputFile</em>, <em>className=''</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getObjects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getTreeMaximum">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getTreeMaximum</tt><big>(</big><em>trees</em>, <em>expression</em>, <em>cut=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getTreeMaximum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getTreeMaximum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getTreeMinimum">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getTreeMinimum</tt><big>(</big><em>trees</em>, <em>expression</em>, <em>cut=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getTreeMinimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getTreeMinimum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getTreeNames">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getTreeNames</tt><big>(</big><em>inputFile</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getTreeNames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getTreeNames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.getTrees">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">getTrees</tt><big>(</big><em>inputFile</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#getTrees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.getTrees" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.logon">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">logon</tt><big>(</big><em>batch=True</em>, <em>style=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#logon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.logon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.makeLabel">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">makeLabel</tt><big>(</big><em>x</em>, <em>y</em>, <em>text</em>, <em>size=None</em>, <em>font=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#makeLabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.makeLabel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.ratioPlot">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">ratioPlot</tt><big>(</big><em>graphs</em>, <em>reference</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#ratioPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.ratioPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.readline">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">readline</tt><big>(</big><em>file</em>, <em>cont=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#readline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.readline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.readlines">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">readlines</tt><big>(</big><em>file</em>, <em>cont=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#readlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.readlines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.round_to_n">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">round_to_n</tt><big>(</big><em>x</em>, <em>n</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#round_to_n"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.round_to_n" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.save_pad">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">save_pad</tt><big>(</big><em>pad</em>, <em>filename=None</em>, <em>format='png'</em>, <em>dir=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#save_pad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.save_pad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.common.set_style">
+<tt class="descclassname">rootpy.common.</tt><tt class="descname">set_style</tt><big>(</big><em>style</em><big>)</big><a class="reference internal" href="../_modules/rootpy/common.html#set_style"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.common.set_style" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.core">
+<span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-rootpy.core" title="Permalink to this headline">¶</a></h2>
+<p>This module contains base classes defining core funcionality</p>
+<dl class="class">
+<dt id="rootpy.core.NamelessConstructorObject">
+<em class="property">class </em><tt class="descclassname">rootpy.core.</tt><tt class="descname">NamelessConstructorObject</tt><big>(</big><em>name</em>, <em>title</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#NamelessConstructorObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.NamelessConstructorObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rootpy.core.Object" title="rootpy.core.Object"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.Object</span></tt></a></p>
+<p>Handle special cases like TGraph where the
+ROOT constructor does not take name/title</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.core.Object">
+<em class="property">class </em><tt class="descclassname">rootpy.core.</tt><tt class="descname">Object</tt><big>(</big><em>name</em>, <em>title</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#Object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.Object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Overrides TObject methods. Name and title for TObject-derived classes are optional
+If no name is specified, a UUID is used to ensure uniqueness.</p>
+<dl class="method">
+<dt id="rootpy.core.Object.Clone">
+<tt class="descname">Clone</tt><big>(</big><em>name=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#Object.Clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.Object.Clone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.core.camelCaseMethods">
+<tt class="descclassname">rootpy.core.</tt><tt class="descname">camelCaseMethods</tt><big>(</big><em>cls</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#camelCaseMethods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.camelCaseMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class decorator which adds camelCased methods
+which alias capitalized ROOT methods</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.core.isbasictype">
+<tt class="descclassname">rootpy.core.</tt><tt class="descname">isbasictype</tt><big>(</big><em>thing</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#isbasictype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.isbasictype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this thing a basic builtin numeric type?</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.core.wrap_call">
+<tt class="descclassname">rootpy.core.</tt><tt class="descname">wrap_call</tt><big>(</big><em>cls</em>, <em>method</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/core.html#wrap_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.core.wrap_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will provide more detailed info in the case that
+a method call on a ROOT object raises a TypeError</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.info">
+<span id="info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">info</span></tt> Module<a class="headerlink" href="#module-rootpy.info" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-rootpy.matrix">
+<span id="matrix-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">matrix</span></tt> Module<a class="headerlink" href="#module-rootpy.matrix" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.matrix.Matrix">
+<tt class="descclassname">rootpy.matrix.</tt><tt class="descname">Matrix</tt><big>(</big><em>rows</em>, <em>cols</em>, <em>type='F'</em><big>)</big><a class="reference internal" href="../_modules/rootpy/matrix.html#Matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.matrix.Matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.measure">
+<span id="measure-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">measure</span></tt> Module<a class="headerlink" href="#module-rootpy.measure" title="Permalink to this headline">¶</a></h2>
+<p>A module containing scale factors for physical quantities</p>
+<dl class="function">
+<dt id="rootpy.measure.convert">
+<tt class="descclassname">rootpy.measure.</tt><tt class="descname">convert</tt><big>(</big><em>origin</em>, <em>target</em><big>)</big><a class="reference internal" href="../_modules/rootpy/measure.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.measure.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the factor required to multiply the
+origin by to express in terms of target</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.objectproxy">
+<span id="objectproxy-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">objectproxy</span></tt> Module<a class="headerlink" href="#module-rootpy.objectproxy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rootpy.objectproxy.MethodProxy">
+<em class="property">class </em><tt class="descclassname">rootpy.objectproxy.</tt><tt class="descname">MethodProxy</tt><big>(</big><em>obj</em>, <em>func</em>, <em>name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/objectproxy.html#MethodProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.objectproxy.MethodProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper object for a method to be called.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.objectproxy.ObjectProxy">
+<em class="property">class </em><tt class="descclassname">rootpy.objectproxy.</tt><tt class="descname">ObjectProxy</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/rootpy/objectproxy.html#ObjectProxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.objectproxy.ObjectProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.path">
+<span id="path-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">path</span></tt> Module<a class="headerlink" href="#module-rootpy.path" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.path.expand">
+<tt class="descclassname">rootpy.path.</tt><tt class="descname">expand</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/rootpy/path.html#expand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.path.expand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.path.expand_and_glob">
+<tt class="descclassname">rootpy.path.</tt><tt class="descname">expand_and_glob</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/rootpy/path.html#expand_and_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.path.expand_and_glob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.path.expand_and_glob_all">
+<tt class="descclassname">rootpy.path.</tt><tt class="descname">expand_and_glob_all</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/rootpy/path.html#expand_and_glob_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.path.expand_and_glob_all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.progressbar">
+<span id="progressbar-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">progressbar</span></tt> Module<a class="headerlink" href="#module-rootpy.progressbar" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rootpy.progressbar.ProgressBar">
+<em class="property">class </em><tt class="descclassname">rootpy.progressbar.</tt><tt class="descname">ProgressBar</tt><big>(</big><em>min_value=0</em>, <em>max_value=100</em>, <em>width=77</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/progressbar.html#ProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.progressbar.ProgressBar" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rootpy.progressbar.ProgressBar.build_bar">
+<tt class="descname">build_bar</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/progressbar.html#ProgressBar.build_bar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.progressbar.ProgressBar.build_bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Figure new percent complete, and rebuild the bar string base on 
+self.amount.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rootpy.progressbar.ProgressBar.increment_amount">
+<tt class="descname">increment_amount</tt><big>(</big><em>add_amount=1</em><big>)</big><a class="reference internal" href="../_modules/rootpy/progressbar.html#ProgressBar.increment_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.progressbar.ProgressBar.increment_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increment self.amount by &#8216;add_ammount&#8217; or default to incrementing
+by 1, and then rebuild the bar string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rootpy.progressbar.ProgressBar.update_amount">
+<tt class="descname">update_amount</tt><big>(</big><em>new_amount=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/progressbar.html#ProgressBar.update_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.progressbar.ProgressBar.update_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update self.amount with &#8216;new_amount&#8217;, and then rebuild the bar 
+string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.progressbar.main">
+<tt class="descclassname">rootpy.progressbar.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/progressbar.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.progressbar.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.registry">
+<span id="registry-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">registry</span></tt> Module<a class="headerlink" href="#module-rootpy.registry" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.registry.lookup">
+<tt class="descclassname">rootpy.registry.</tt><tt class="descname">lookup</tt><big>(</big><em>cls</em><big>)</big><a class="reference internal" href="../_modules/rootpy/registry.html#lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.registry.lookup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.registry.lookup_by_name">
+<tt class="descclassname">rootpy.registry.</tt><tt class="descname">lookup_by_name</tt><big>(</big><em>cls_name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/registry.html#lookup_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.registry.lookup_by_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.registry.lookup_demotion">
+<tt class="descclassname">rootpy.registry.</tt><tt class="descname">lookup_demotion</tt><big>(</big><em>cls</em><big>)</big><a class="reference internal" href="../_modules/rootpy/registry.html#lookup_demotion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.registry.lookup_demotion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="rootpy.registry.register">
+<em class="property">class </em><tt class="descclassname">rootpy.registry.</tt><tt class="descname">register</tt><big>(</big><em>names=None</em>, <em>demote=None</em>, <em>builtin=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/registry.html#register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.registry.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.root2array">
+<span id="root2array-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">root2array</span></tt> Module<a class="headerlink" href="#module-rootpy.root2array" title="Permalink to this headline">¶</a></h2>
+<p>This module should handle:
+* conversion of TTrees into NumPy arrays. Done
+* conversion of a single TBranch into a Numpy array. TODO
+* conversion of TTrees into carrays (<a class="reference external" href="http://pypi.python.org/pypi/carray">http://pypi.python.org/pypi/carray</a>). TODO</p>
+<dl class="function">
+<dt id="rootpy.root2array.to_numpy_array">
+<tt class="descclassname">rootpy.root2array.</tt><tt class="descname">to_numpy_array</tt><big>(</big><em>trees</em>, <em>branches=None</em>, <em>use_cache=False</em>, <em>cache_size=1000000</em>, <em>include_weight=False</em>, <em>weight_dtype='f4'</em><big>)</big><a class="reference internal" href="../_modules/rootpy/root2array.html#to_numpy_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.root2array.to_numpy_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.root2matplotlib">
+<span id="root2matplotlib-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">root2matplotlib</span></tt> Module<a class="headerlink" href="#module-rootpy.root2matplotlib" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.root2matplotlib.errorbar">
+<tt class="descclassname">rootpy.root2matplotlib.</tt><tt class="descname">errorbar</tt><big>(</big><em>h</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/root2matplotlib.html#errorbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.root2matplotlib.errorbar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.root2matplotlib.hist">
+<tt class="descclassname">rootpy.root2matplotlib.</tt><tt class="descname">hist</tt><big>(</big><em>h</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/root2matplotlib.html#hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.root2matplotlib.hist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.root2tables">
+<span id="root2tables-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">root2tables</span></tt> Module<a class="headerlink" href="#module-rootpy.root2tables" title="Permalink to this headline">¶</a></h2>
+<p>This module should handle:
+* conversion of ROOT&#8217;s TFile and contained TTrees into HDF5 format with PyTables</p>
+<blockquote>
+<div>A first attempt is in scripts/root2hd5</div></blockquote>
+<dl class="function">
+<dt id="rootpy.root2tables.convert">
+<tt class="descclassname">rootpy.root2tables.</tt><tt class="descname">convert</tt><big>(</big><em>rfile</em>, <em>hfile</em>, <em>rpath=''</em>, <em>hpath=''</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2b69fa36f1e0&gt;</em><big>)</big><a class="reference internal" href="../_modules/rootpy/root2tables.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.root2tables.convert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.userdata">
+<span id="userdata-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">userdata</span></tt> Module<a class="headerlink" href="#module-rootpy.userdata" title="Permalink to this headline">¶</a></h2>
+<p>This module handles creation of the user-data area</p>
+</div>
+<div class="section" id="module-rootpy.utils">
+<span id="utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">utils</span></tt> Module<a class="headerlink" href="#module-rootpy.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rootpy.utils.asrootpy">
+<tt class="descclassname">rootpy.utils.</tt><tt class="descname">asrootpy</tt><big>(</big><em>tobject</em><big>)</big><a class="reference internal" href="../_modules/rootpy/utils.html#asrootpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.utils.asrootpy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.utils.create">
+<tt class="descclassname">rootpy.utils.</tt><tt class="descname">create</tt><big>(</big><em>cls_name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/utils.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.utils.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.vector">
+<span id="vector-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">vector</span></tt> Module<a class="headerlink" href="#module-rootpy.vector" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rootpy.vector.LorentzVector">
+<em class="property">class </em><tt class="descclassname">rootpy.vector.</tt><tt class="descname">LorentzVector</tt><a class="reference internal" href="../_modules/rootpy/vector.html#LorentzVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.LorentzVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">rootpy.vector._arithmetic_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._copy_construct_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._repr_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TLorentzVector</span></tt></p>
+<dl class="method">
+<dt id="rootpy.vector.LorentzVector.Angle">
+<tt class="descname">Angle</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="../_modules/rootpy/vector.html#LorentzVector.Angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.LorentzVector.Angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.vector.LorentzVector.BoostVector">
+<tt class="descname">BoostVector</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/vector.html#LorentzVector.BoostVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.LorentzVector.BoostVector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.vector.LorentzVector.angle">
+<tt class="descname">angle</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#rootpy.vector.LorentzVector.angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.vector.LorentzVector.boostVector">
+<tt class="descname">boostVector</tt><big>(</big><big>)</big><a class="headerlink" href="#rootpy.vector.LorentzVector.boostVector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.vector.Vector2">
+<em class="property">class </em><tt class="descclassname">rootpy.vector.</tt><tt class="descname">Vector2</tt><a class="reference internal" href="../_modules/rootpy/vector.html#Vector2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.Vector2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">rootpy.vector._arithmetic_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._copy_construct_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._repr_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TVector2</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.vector.Vector3">
+<em class="property">class </em><tt class="descclassname">rootpy.vector.</tt><tt class="descname">Vector3</tt><a class="reference internal" href="../_modules/rootpy/vector.html#Vector3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.Vector3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">rootpy.vector._arithmetic_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._copy_construct_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">rootpy.core._repr_mixin</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TVector3</span></tt></p>
+<dl class="method">
+<dt id="rootpy.vector.Vector3.Angle">
+<tt class="descname">Angle</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="../_modules/rootpy/vector.html#Vector3.Angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.vector.Vector3.Angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.vector.Vector3.angle">
+<tt class="descname">angle</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#rootpy.vector.Vector3.angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.batch.html">batch Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.batch.html#id1"><tt class="docutils literal"><span class="pre">batch</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.batch.html#module-rootpy.batch.multilogging"><tt class="docutils literal"><span class="pre">multilogging</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.batch.html#module-rootpy.batch.student"><tt class="docutils literal"><span class="pre">student</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.batch.html#module-rootpy.batch.supervisor"><tt class="docutils literal"><span class="pre">supervisor</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.data.html">data Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.data.html#module-rootpy.data.datamanaging"><tt class="docutils literal"><span class="pre">datamanaging</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.data.html#module-rootpy.data.dataset"><tt class="docutils literal"><span class="pre">dataset</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.data.html#module-rootpy.data.metadata"><tt class="docutils literal"><span class="pre">metadata</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.hep.html">hep Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.hep.html#module-rootpy.hep.pdg"><tt class="docutils literal"><span class="pre">pdg</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.io.html">io Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.io.html#id1"><tt class="docutils literal"><span class="pre">io</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.io.html#file-module"><tt class="docutils literal"><span class="pre">file</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.io.html#module-rootpy.io.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.networking.html">networking Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.networking.html#module-rootpy.networking.network"><tt class="docutils literal"><span class="pre">network</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.plotting.html">plotting Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#id1"><tt class="docutils literal"><span class="pre">plotting</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.canvas"><tt class="docutils literal"><span class="pre">canvas</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.graph"><tt class="docutils literal"><span class="pre">graph</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.hist"><tt class="docutils literal"><span class="pre">hist</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.legend"><tt class="docutils literal"><span class="pre">legend</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.pyplot"><tt class="docutils literal"><span class="pre">pyplot</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.plotting.html#module-rootpy.plotting.style"><tt class="docutils literal"><span class="pre">style</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.tree.html">tree Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#id1"><tt class="docutils literal"><span class="pre">tree</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.categories"><tt class="docutils literal"><span class="pre">categories</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.cut"><tt class="docutils literal"><span class="pre">cut</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.cutflow"><tt class="docutils literal"><span class="pre">cutflow</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.filtering"><tt class="docutils literal"><span class="pre">filtering</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.tree"><tt class="docutils literal"><span class="pre">tree</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.tree.html#module-rootpy.tree.treeobject"><tt class="docutils literal"><span class="pre">treeobject</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rootpy.types.html">types Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.types.html#id1"><tt class="docutils literal"><span class="pre">types</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.types.html#module-rootpy.types._types"><tt class="docutils literal"><span class="pre">_types</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rootpy.types.html#module-rootpy.types.convert"><tt class="docutils literal"><span class="pre">convert</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">rootpy Package</a><ul>
+<li><a class="reference internal" href="#module-rootpy.classfactory"><tt class="docutils literal"><span class="pre">classfactory</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.common"><tt class="docutils literal"><span class="pre">common</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.info"><tt class="docutils literal"><span class="pre">info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.matrix"><tt class="docutils literal"><span class="pre">matrix</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.measure"><tt class="docutils literal"><span class="pre">measure</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.objectproxy"><tt class="docutils literal"><span class="pre">objectproxy</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.path"><tt class="docutils literal"><span class="pre">path</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.progressbar"><tt class="docutils literal"><span class="pre">progressbar</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.registry"><tt class="docutils literal"><span class="pre">registry</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.root2array"><tt class="docutils literal"><span class="pre">root2array</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.root2matplotlib"><tt class="docutils literal"><span class="pre">root2matplotlib</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.root2tables"><tt class="docutils literal"><span class="pre">root2tables</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.userdata"><tt class="docutils literal"><span class="pre">userdata</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.vector"><tt class="docutils literal"><span class="pre">vector</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">rootpy</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">rootpy</a></li>
+      <li>Next: <a href="rootpy.batch.html" title="next chapter">batch Package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/reference/rootpy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>io Package &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../index.html" />
+    <link rel="up" title="rootpy Package" href="rootpy.html" />
+    <link rel="next" title="networking Package" href="rootpy.networking.html" />
+    <link rel="prev" title="hep Package" href="rootpy.hep.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rootpy.networking.html" title="networking Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rootpy.hep.html" title="hep Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="modules.html" >rootpy</a> &raquo;</li>
+          <li><a href="rootpy.html" accesskey="U">rootpy Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="io-package">
+<h1>io Package<a class="headerlink" href="#io-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference external" href="http://docs.python.org/library/io.html#module-io" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">io</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-rootpy.io"></span></div>
+<div class="section" id="file-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">file</span></tt> Module<a class="headerlink" href="#file-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-rootpy.io.file"></span><p>This module enhances IO-related ROOT functionality</p>
+<dl class="class">
+<dt id="rootpy.io.file.Directory">
+<em class="property">class </em><tt class="descclassname">rootpy.io.file.</tt><tt class="descname">Directory</tt><big>(</big><em>name</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/file.html#Directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.file.Directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">rootpy.io.file._DirectoryBase</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TDirectoryFile</span></tt></p>
+<p>Inherits from TDirectory</p>
+<dl class="method">
+<dt id="rootpy.io.file.Directory.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#rootpy.io.file.Directory.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.Directory.getDirectory">
+<tt class="descname">getDirectory</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#rootpy.io.file.Directory.getDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.Directory.getObject">
+<tt class="descname">getObject</tt><big>(</big><big>)</big><a class="headerlink" href="#rootpy.io.file.Directory.getObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyROOT custom instance method (internal)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.Directory.writeObject">
+<tt class="descname">writeObject</tt><big>(</big><big>)</big><a class="headerlink" href="#rootpy.io.file.Directory.writeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyROOT custom instance method (internal)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="rootpy.io.file.DoesNotExist">
+<em class="property">exception </em><tt class="descclassname">rootpy.io.file.</tt><tt class="descname">DoesNotExist</tt><a class="reference internal" href="../_modules/rootpy/io/file.html#DoesNotExist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.file.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rootpy.io.file.File">
+<em class="property">class </em><tt class="descclassname">rootpy.io.file.</tt><tt class="descname">File</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/file.html#File"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.file.File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">rootpy.io.file._DirectoryBase</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TFile</span></tt></p>
+<p>Inherits from Directory</p>
+<dl class="method">
+<dt id="rootpy.io.file.File.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#rootpy.io.file.File.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.File.getDirectory">
+<tt class="descname">getDirectory</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#rootpy.io.file.File.getDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.File.getObject">
+<tt class="descname">getObject</tt><big>(</big><big>)</big><a class="headerlink" href="#rootpy.io.file.File.getObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyROOT custom instance method (internal)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rootpy.io.file.File.writeObject">
+<tt class="descname">writeObject</tt><big>(</big><big>)</big><a class="headerlink" href="#rootpy.io.file.File.writeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyROOT custom instance method (internal)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="rootpy.io.file.open">
+<tt class="descclassname">rootpy.io.file.</tt><tt class="descname">open</tt><big>(</big><em>filename</em>, <em>mode=''</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/file.html#open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.file.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.io.file.wrap_path_handling">
+<tt class="descclassname">rootpy.io.file.</tt><tt class="descname">wrap_path_handling</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/file.html#wrap_path_handling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.file.wrap_path_handling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rootpy.io.utils">
+<span id="utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">utils</span></tt> Module<a class="headerlink" href="#module-rootpy.io.utils" title="Permalink to this headline">¶</a></h2>
+<p>This module contains os.path/walk-like
+utilities for the ROOT TFile &#8216;filesystem&#8217;</p>
+<dl class="function">
+<dt id="rootpy.io.utils.splitfile">
+<tt class="descclassname">rootpy.io.utils.</tt><tt class="descname">splitfile</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/utils.html#splitfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.utils.splitfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.io.utils.walk">
+<tt class="descclassname">rootpy.io.utils.</tt><tt class="descname">walk</tt><big>(</big><em>tdirectory</em>, <em>top=None</em>, <em>pattern=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/io/utils.html#walk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.io.utils.walk" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each directory in the directory tree rooted at top (including top
+itself, but excluding &#8216;.&#8217; and &#8216;..&#8217;), yields a 3-tuple</p>
+<p>dirpath, dirnames, filenames</p>
+<p>dirpath is a string, the path to the directory.  dirnames is a list of
+the names of the subdirectories in dirpath (excluding &#8216;.&#8217; and &#8216;..&#8217;).
+filenames is a list of the names of the non-directory files in dirpath.
+Note that the names in the lists are just names, with no path components.
+To get a full path (which begins with top) to a file or directory in
+dirpath, do os.path.join(dirpath, name).</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">io Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">io</span></tt> Package</a></li>
+<li><a class="reference internal" href="#file-module"><tt class="docutils literal"><span class="pre">file</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-rootpy.io.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">rootpy</a><ul>
+  <li><a href="rootpy.html">rootpy Package</a><ul>
+      <li>Previous: <a href="rootpy.hep.html" title="previous chapter">hep Package</a></li>
+      <li>Next: <a href="rootpy.networking.html" title="next chapter">networking Package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/reference/rootpy.io.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

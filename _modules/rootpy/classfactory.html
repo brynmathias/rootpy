@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.classfactory &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.classfactory</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module handles dictionary generation of classes for use</span>
+<span class="sd">in the Python environment. Dictionaried are kept in</span>
+<span class="sd">$ROOTPY_DATA for later use so they are not repeatedly regenerated</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">rootpy.userdata</span> <span class="kn">import</span> <span class="n">DATA_ROOT</span>
+
+<span class="n">__ROOT_version</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">GetVersionCode</span><span class="p">())</span>
+<span class="n">__loaded_dicts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">__dicts_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_ROOT</span><span class="p">,</span> <span class="s">&#39;dicts&#39;</span><span class="p">,</span> <span class="n">__ROOT_version</span><span class="p">)</span>
+<span class="n">ROOT</span><span class="o">.</span><span class="n">gSystem</span><span class="o">.</span><span class="n">SetDynamicPath</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gSystem</span><span class="o">.</span><span class="n">GetDynamicPath</span><span class="p">()]))</span>
+<span class="n">__lookup_table_name</span> <span class="o">=</span> <span class="s">&#39;lookup&#39;</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="n">__lookup_table_name</span><span class="p">)):</span>
+    <span class="n">__lookup_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="n">__lookup_table_name</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">__lookup_table</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span><span class="nb">reversed</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">__lookup_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()])</span>
+    <span class="n">__lookup_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">__lookup_table</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="generate"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.classfactory.generate">[docs]</a><span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="n">declaration</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">headers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">))</span>
+        <span class="n">unique_name</span> <span class="o">=</span> <span class="s">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">declaration</span><span class="p">]</span><span class="o">+</span><span class="n">headers</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">unique_name</span> <span class="o">=</span> <span class="n">declaration</span>
+
+    <span class="c"># If this class was previously requested, do nothing</span>
+    <span class="k">if</span> <span class="n">__loaded_dicts</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">unique_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    
+    <span class="c"># If as .so already exists for this class, use it.</span>
+    <span class="k">if</span> <span class="n">__lookup_table</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">unique_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gSystem</span><span class="o">.</span><span class="n">Load</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">.so&quot;</span><span class="o">%</span> <span class="n">__lookup_table</span><span class="p">[</span><span class="n">unique_name</span><span class="p">])</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">__loaded_dicts</span><span class="p">[</span><span class="n">unique_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="c"># This dict was not previously generated so we must create it now</span>
+    <span class="k">print</span> <span class="s">&quot;generating dictionary for </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="n">declaration</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&#39;^&lt;.+&gt;$&#39;</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+                <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#include </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">header</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#include </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">header</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#ifdef __CINT__</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#pragma link C++ class </span><span class="si">%s</span><span class="s">+;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">declaration</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#else</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;using namespace std;</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;template class </span><span class="si">%s</span><span class="s">;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">declaration</span>
+    <span class="n">source</span> <span class="o">+=</span> <span class="s">&quot;#endif</span><span class="se">\n</span><span class="s">&quot;</span>
+    
+    <span class="n">dict_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+    <span class="n">sourcefilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.C&quot;</span><span class="o">%</span> <span class="n">dict_id</span><span class="p">)</span>
+    <span class="n">sourcefile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">sourcefilename</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">sourcefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">sourcefile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">msg_level</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gErrorIgnoreLevel</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">gErrorIgnoreLevel</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">kFatal</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gSystem</span><span class="o">.</span><span class="n">CompileMacro</span><span class="p">(</span><span class="n">sourcefilename</span><span class="p">,</span> <span class="s">&#39;k-&#39;</span><span class="p">,</span> <span class="n">dict_id</span><span class="p">,</span> <span class="n">__dicts_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">ROOT</span><span class="o">.</span><span class="n">gErrorIgnoreLevel</span> <span class="o">=</span> <span class="n">msg_level</span>
+    <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+        <span class="n">__lookup_table</span><span class="p">[</span><span class="n">unique_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_id</span>
+        <span class="n">__loaded_dicts</span><span class="p">[</span><span class="n">unique_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">sourcefilename</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_C.d&quot;</span><span class="o">%</span> <span class="n">dict_id</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.so&quot;</span><span class="o">%</span> <span class="n">dict_id</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">success</span>
+</div>
+<span class="nd">@atexit.register</span>
+<span class="k">def</span> <span class="nf">__cleanup</span><span class="p">():</span>
+    <span class="n">__lookup_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__dicts_path</span><span class="p">,</span> <span class="n">__lookup_table_name</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dict_id</span> <span class="ow">in</span> <span class="n">__lookup_table</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">__lookup_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">dict_id</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+    <span class="n">__lookup_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

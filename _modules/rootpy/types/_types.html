@@ -1,0 +1,562 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.types._types &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.types._types</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: iso-8859-1 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrappers for basic types that are compatible with ROOT TTrees</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">..registry</span> <span class="kn">import</span> <span class="n">register</span>
+<span class="kn">from</span> <span class="nn">.convert</span> <span class="kn">import</span> <span class="n">convert</span> 
+<span class="kn">import</span> <span class="nn">ROOT</span>
+
+
+<div class="viewcode-block" id="Column"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Column">[docs]</a><span class="k">class</span> <span class="nc">Column</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">arg_params</span> <span class="o">=</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">])</span>
+        <span class="n">kwd_params</span> <span class="o">=</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">arg_params</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwd_params</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwd_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ObjectCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.ObjectCol">[docs]</a><span class="k">class</span> <span class="nc">ObjectCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">cls</span>
+        <span class="n">Column</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is the base class for all variables&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resetable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+        <span class="n">array</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resetable</span> <span class="o">=</span> <span class="n">resetable</span>
+
+<div class="viewcode-block" id="Variable.reset"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Variable.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the value to the default&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resetable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+</div>
+<div class="viewcode-block" id="Variable.clear"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Variable.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Supplied to match the interface of ROOT.vector&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Variable.value"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Variable.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The current value&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Variable.set"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Variable.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">) at </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>  \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__hex__</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">array</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="n">array</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">array</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">other</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">*</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Variable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="nf">__rdiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">other</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;CHAR_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Char"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Char">[docs]</a><span class="k">class</span> <span class="nc">Char</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a character type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the Boolean type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;C&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Char_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">default</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Char.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Char.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+</div></div>
+<div class="viewcode-block" id="CharCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.CharCol">[docs]</a><span class="k">class</span> <span class="nc">CharCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Char</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;B&#39;</span><span class="p">,</span> <span class="s">&#39;BOOL_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Bool"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Bool">[docs]</a><span class="k">class</span> <span class="nc">Bool</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a Boolean type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the Boolean type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;O&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Bool_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">default</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">))])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Bool.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Bool.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="BoolCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.BoolCol">[docs]</a><span class="k">class</span> <span class="nc">BoolCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Bool</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;I&#39;</span><span class="p">,</span> <span class="s">&#39;INT_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Int"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Int">[docs]</a><span class="k">class</span> <span class="nc">Int</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing an integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the integer type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;I&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Int_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;i&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Int.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Int.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="IntCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.IntCol">[docs]</a><span class="k">class</span> <span class="nc">IntCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Int</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;UI&#39;</span><span class="p">,</span> <span class="s">&#39;UINT_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="UInt"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.UInt">[docs]</a><span class="k">class</span> <span class="nc">UInt</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing an unsigned integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the unsigned integer type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;i&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;UInt_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">default</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;I&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">long</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="UInt.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.UInt.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Assigning negative value (</span><span class="si">%i</span><span class="s">) to unsigned type&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">long</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="UIntCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.UIntCol">[docs]</a><span class="k">class</span> <span class="nc">UIntCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">UInt</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;L&#39;</span><span class="p">,</span> <span class="s">&#39;LONG64_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Long"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Long">[docs]</a><span class="k">class</span> <span class="nc">Long</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a long</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the long type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;L&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Long64_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">default</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;l&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">long</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Long.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Long.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">long</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="LongCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.LongCol">[docs]</a><span class="k">class</span> <span class="nc">LongCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Long</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;UL&#39;</span><span class="p">,</span> <span class="s">&#39;ULONG64_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ULong"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.ULong">[docs]</a><span class="k">class</span> <span class="nc">ULong</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a long</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the long type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;l&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;ULong64_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">default</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;L&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">long</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ULong.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.ULong.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Assigning negative value (</span><span class="si">%i</span><span class="s">) to unsigned type&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">long</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ULongCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.ULongCol">[docs]</a><span class="k">class</span> <span class="nc">ULongCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">ULong</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">,</span> <span class="s">&#39;FLOAT_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Float"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Float">[docs]</a><span class="k">class</span> <span class="nc">Float</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the float type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;F&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Float_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;f&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Float.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Float.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="FloatCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.FloatCol">[docs]</a><span class="k">class</span> <span class="nc">FloatCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Float</span>
+
+</div>
+<span class="nd">@register</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;DOUBLE_T&#39;</span><span class="p">),</span> <span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="Double"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Double">[docs]</a><span class="k">class</span> <span class="nc">Double</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a variable containing a double</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The ROOT character representation of the double type</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;D&#39;</span>
+    <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;Double_t&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">Variable</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">Variable</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Double.convert"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.Double.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="DoubleCol"><a class="viewcode-back" href="../../../reference/rootpy.types.html#rootpy.types._types.DoubleCol">[docs]</a><span class="k">class</span> <span class="nc">DoubleCol</span><span class="p">(</span><span class="n">Column</span><span class="p">):</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">Double</span>
+
+</div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">generate dictionaries for commonly used types not included in ROOT</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">..classfactory</span> <span class="kn">import</span> <span class="n">generate</span>
+
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;float&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;int&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;unsigned int&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;long&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;unsigned long&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;double&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;vector&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;string&gt; &gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;map&lt;string,string&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;map&gt;;&lt;string&gt;&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;TLorentzVector&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;TLorentzVector.h&#39;</span><span class="p">)</span>
+<span class="n">generate</span><span class="p">(</span><span class="s">&#39;vector&lt;vector&lt;TLorentzVector&gt; &gt;&#39;</span><span class="p">,</span> <span class="s">&#39;TLorentzVector.h&#39;</span><span class="p">)</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Register builtin types:</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VS&#39;</span><span class="p">,</span>    <span class="s">&#39;VECTOR&lt;SHORT&gt;&#39;</span><span class="p">))</span>                                <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;short&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VUS&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;UNSIGNED SHORT&gt;&#39;</span><span class="p">))</span>                       <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;unsigned short&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VI&#39;</span><span class="p">,</span>    <span class="s">&#39;VECTOR&lt;INT&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;I&#39;</span><span class="p">)</span>                      <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;int&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VUI&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;UNSIGNED INT&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;UI&#39;</span><span class="p">)</span>            <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;unsigned int&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VL&#39;</span><span class="p">,</span>    <span class="s">&#39;VECTOR&lt;LONG&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;L&#39;</span><span class="p">)</span>                     <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;long&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VUL&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;UNSIGNED LONG&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;UL&#39;</span><span class="p">)</span>           <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;unsigned long&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VF&#39;</span><span class="p">,</span>    <span class="s">&#39;VECTOR&lt;FLOAT&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;F&#39;</span><span class="p">)</span>                    <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;float&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VD&#39;</span><span class="p">,</span>    <span class="s">&#39;VECTOR&lt;DOUBLE&gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;D&#39;</span><span class="p">)</span>                   <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;double&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVI&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;VECTOR&lt;INT&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VI&#39;</span><span class="p">)</span>            <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;int&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVUI&#39;</span><span class="p">,</span>  <span class="s">&#39;VECTOR&lt;VECTOR&lt;UNSIGNED INT&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VUI&#39;</span><span class="p">)</span>  <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;unsigned int&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVL&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;VECTOR&lt;LONG&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VL&#39;</span><span class="p">)</span>           <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;long&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVUL&#39;</span><span class="p">,</span>  <span class="s">&#39;VECTOR&lt;VECTOR&lt;UNSIGNED LONG&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VUL&#39;</span><span class="p">)</span> <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;unsigned long&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVF&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;VECTOR&lt;FLOAT&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VF&#39;</span><span class="p">)</span>          <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;float&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVD&#39;</span><span class="p">,</span>   <span class="s">&#39;VECTOR&lt;VECTOR&lt;DOUBLE&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VD&#39;</span><span class="p">)</span>         <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;double&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VVSTR&#39;</span><span class="p">,</span> <span class="s">&#39;VECTOR&lt;VECTOR&lt;STRING&gt; &gt;&#39;</span><span class="p">),</span> <span class="n">demote</span><span class="o">=</span><span class="s">&#39;VSTR&#39;</span><span class="p">)</span>       <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;vector&lt;string&gt;&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;VSTR&#39;</span><span class="p">,</span>  <span class="s">&#39;VECTOR&lt;STRING&gt;&#39;</span><span class="p">))</span>                               <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">&#39;string&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;MSI&#39;</span><span class="p">,</span>   <span class="s">&#39;MAP&lt;STRING,INT&gt;&#39;</span><span class="p">))</span>                              <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s">&#39;string,int&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;MSF&#39;</span><span class="p">,</span>   <span class="s">&#39;MAP&lt;STRING,FLOAT&gt;&#39;</span><span class="p">))</span>                            <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s">&#39;string,float&#39;</span><span class="p">))</span>
+<span class="n">register</span><span class="p">(</span><span class="n">builtin</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;MSS&#39;</span><span class="p">,</span>   <span class="s">&#39;MAP&lt;STRING,STRING&gt;&#39;</span><span class="p">))</span>                           <span class="p">(</span><span class="n">ROOT</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s">&#39;string,string&#39;</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,238 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.progressbar &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.progressbar</h1><div class="highlight"><pre>
+<span class="c"># A Python Library to create a Progress Bar.</span>
+<span class="c"># Copyright (C) 2008  BJ Dierkes &lt;wdierkes@5dollarwhitebox.org&gt;</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c">#</span>
+<span class="c">#</span>
+<span class="c"># This class is an improvement from the original found at:</span>
+<span class="c">#</span>
+<span class="c">#   http://code.activestate.com/recipes/168639/</span>
+<span class="c">#</span>
+ 
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">os</span>
+ 
+<div class="viewcode-block" id="ProgressBar"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.progressbar.ProgressBar">[docs]</a><span class="k">class</span> <span class="nc">ProgressBar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">77</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">char</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;char&#39;</span><span class="p">,</span> <span class="s">&#39;#&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;mode&#39;</span><span class="p">,</span> <span class="s">&#39;dynamic&#39;</span><span class="p">)</span> <span class="c"># fixed or dynamic</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;fixed&#39;</span><span class="p">,</span> <span class="s">&#39;dynamic&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s">&#39;fixed&#39;</span>
+ 
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">min_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="n">max_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="o">=</span> <span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="mi">0</span>       <span class="c"># When amount == max, we are 100% done </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_amount</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> 
+ 
+ 
+<div class="viewcode-block" id="ProgressBar.increment_amount"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.progressbar.ProgressBar.increment_amount">[docs]</a>    <span class="k">def</span> <span class="nf">increment_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_amount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Increment self.amount by &#39;add_ammount&#39; or default to incrementing</span>
+<span class="sd">        by 1, and then rebuild the bar string. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">+</span> <span class="n">add_amount</span>
+        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">:</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span>
+        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">:</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="n">new_amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_bar</span><span class="p">()</span>
+ 
+ </div>
+<div class="viewcode-block" id="ProgressBar.update_amount"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.progressbar.ProgressBar.update_amount">[docs]</a>    <span class="k">def</span> <span class="nf">update_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update self.amount with &#39;new_amount&#39;, and then rebuild the bar </span>
+<span class="sd">        string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_amount</span><span class="p">:</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">amount</span>
+        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">:</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span>
+        <span class="k">if</span> <span class="n">new_amount</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">:</span> <span class="n">new_amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="n">new_amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_bar</span><span class="p">()</span>
+ 
+ </div>
+<div class="viewcode-block" id="ProgressBar.build_bar"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.progressbar.ProgressBar.build_bar">[docs]</a>    <span class="k">def</span> <span class="nf">build_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Figure new percent complete, and rebuild the bar string base on </span>
+<span class="sd">        self.amount.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+        <span class="n">percent_done</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">diff</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">))</span>
+ 
+        <span class="c"># figure the proper number of &#39;character&#39; make up the bar </span>
+        <span class="n">all_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">num_hashes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">percent_done</span> <span class="o">*</span> <span class="n">all_full</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span><span class="p">))</span>
+ 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s">&#39;dynamic&#39;</span><span class="p">:</span>
+            <span class="c"># build a progress bar with self.char (to create a dynamic bar</span>
+            <span class="c"># where the percent string moves along with the bar progress.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">char</span> <span class="o">*</span> <span class="n">num_hashes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># build a progress bar with self.char and spaces (to create a </span>
+            <span class="c"># fixe bar (the percent string doesn&#39;t move)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">char</span> <span class="o">*</span> <span class="n">num_hashes</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">all_full</span><span class="o">-</span><span class="n">num_hashes</span><span class="p">)</span>
+ 
+        <span class="n">percent_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">percent_done</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;%&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="s">&#39;[ &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">+</span> <span class="s">&#39; ] &#39;</span> <span class="o">+</span> <span class="n">percent_str</span>
+ 
+ </div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="p">)</span>
+ 
+ </div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.progressbar.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">print</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="mi">1000000</span>
+ 
+    <span class="k">print</span> <span class="s">&#39;Example 1: Fixed Bar&#39;</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;fixed&#39;</span><span class="p">)</span>
+    <span class="n">oldprog</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">limit</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">prog</span><span class="o">.</span><span class="n">update_amount</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oldprog</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">):</span>
+            <span class="k">print</span> <span class="n">prog</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\r</span><span class="s">&quot;</span><span class="p">,</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">oldprog</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+ 
+    <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span>
+ 
+    <span class="k">print</span> <span class="s">&#39;Example 2: Dynamic Bar&#39;</span>
+    <span class="n">prog</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;dynamic&#39;</span><span class="p">,</span> <span class="n">char</span><span class="o">=</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">oldprog</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">limit</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">prog</span><span class="o">.</span><span class="n">increment_amount</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">oldprog</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">):</span>
+            <span class="k">print</span> <span class="n">prog</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\r</span><span class="s">&quot;</span><span class="p">,</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">oldprog</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+ 
+    <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span>
+ 
+ </div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+ 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">from progress_bar import ProgressBar</span>
+<span class="sd">import sys</span>
+<span class="sd"> </span>
+<span class="sd">count = 0</span>
+<span class="sd">total = 100000</span>
+<span class="sd"> </span>
+<span class="sd">prog = ProgressBar(count, total, 77, mode=&#39;fixed&#39;, char=&#39;#&#39;)</span>
+<span class="sd">while count &lt;= total:</span>
+<span class="sd">    count += 1</span>
+<span class="sd">    prog.increment_amount()</span>
+<span class="sd">    print prog, &#39;\r&#39;,</span>
+<span class="sd">    sys.stdout.flush()</span>
+<span class="sd">print</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

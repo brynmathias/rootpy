@@ -1,0 +1,380 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rootpy.data.datamanaging &mdash; rootpy 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <link media="only screen and (max-device-width: 480px)" href="../../../_static/clean_small.css" type= "text/css" rel="stylesheet" />
+
+  </head>
+  <body>
+  
+  
+  
+    <a href="http://github.com/ndawe/rootpy"><img style="position: fixed; top: 0; right: 0; border: 0;"
+    src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for rootpy.data.datamanaging</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">..tree</span> <span class="kn">import</span> <span class="n">Tree</span>
+<span class="kn">from</span> <span class="nn">..io</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="nb">open</span> <span class="k">as</span> <span class="n">ropen</span>
+<span class="kn">from</span> <span class="nn">..tree</span> <span class="kn">import</span> <span class="n">Cut</span>
+<span class="kn">from</span> <span class="nn">.dataset</span> <span class="kn">import</span> <span class="n">Treeset</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">import</span> <span class="nn">metadata</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">ROOT</span>
+
+<span class="n">SAMPLE_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;^(?P&lt;name&gt;[^(]+)(?:\((?P&lt;type&gt;[^)]+)\))?$&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataManager"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager">[docs]</a><span class="k">class</span> <span class="nc">DataManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coreDataName</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pluggedDataName</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">friendFiles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scratchFileName</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.root&quot;</span><span class="o">%</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scratchFileName</span><span class="p">,</span><span class="s">&quot;recreate&quot;</span><span class="p">)</span>
+        <span class="n">ROOT</span><span class="o">.</span><span class="n">gROOT</span><span class="o">.</span><span class="n">GetListOfFiles</span><span class="p">()</span><span class="o">.</span><span class="n">Remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__use_rootfs</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scratchFileName</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">friendFiles</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="nb">file</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">file</span><span class="p">:</span>
+                <span class="nb">file</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="DataManager.load"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">metadir</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__use_rootfs</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__use_rootfs</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> does not exist&quot;</span><span class="o">%</span> <span class="n">filename</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__use_rootfs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;loading </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">filename</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">ropen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Could not open </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">filename</span>
+                <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coreDataName</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+        <span class="n">dataroot</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="c"># get metadata</span>
+        <span class="k">for</span> <span class="n">meta</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;variables&quot;</span><span class="p">,</span> <span class="s">&quot;datasets&quot;</span><span class="p">,</span> <span class="s">&quot;trees&quot;</span><span class="p">]:</span>
+            <span class="n">metafile</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.yml&quot;</span><span class="o">%</span> <span class="n">meta</span>
+            <span class="k">if</span> <span class="n">metadir</span><span class="p">:</span>
+                <span class="n">metafile_user</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadir</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">metafile_user</span><span class="p">):</span>
+                    <span class="k">print</span> <span class="s">&quot;loading </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">metafile_user</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">meta</span><span class="p">,</span><span class="n">metadata</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">metafile_user</span><span class="p">))</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>    
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">metafile</span><span class="p">):</span>
+                    <span class="k">print</span> <span class="s">&quot;loading </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">metafile</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">meta</span><span class="p">,</span><span class="n">metadata</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">metafile</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">metafile_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataroot</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">metafile_data</span><span class="p">):</span>
+                    <span class="k">print</span> <span class="s">&quot;loading </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">metafile_data</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">meta</span><span class="p">,</span><span class="n">metadata</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">metafile_data</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;DATAROOT&#39;</span><span class="p">):</span>
+                    <span class="n">dataroot_central</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;DATAROOT&#39;</span><span class="p">]</span>
+                    <span class="n">metafile_central</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataroot_central</span><span class="p">,</span> <span class="n">metafile</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">metafile_central</span><span class="p">):</span>
+                        <span class="k">print</span> <span class="s">&quot;loading </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">metafile_central</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">meta</span><span class="p">,</span><span class="n">metadata</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">metafile_central</span><span class="p">))</span>
+                        <span class="k">continue</span>
+            <span class="k">print</span> <span class="s">&quot;Could not find </span><span class="si">%s</span><span class="s">.yml in $DATAROOT, </span><span class="si">%s</span><span class="s"> or current working directory&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">dataroot</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="DataManager.plug"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.plug">[docs]</a>    <span class="k">def</span> <span class="nf">plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+       
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Cannot plug in supplementary data with no core data!&quot;</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pluggedDataName</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;plugging in </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">filename</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pluggedDataName</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Could not open </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">filename</span>
+         </div>
+<div class="viewcode-block" id="DataManager.get_object_by_name"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.get_object_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_object_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__use_rootfs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="nb">file</span><span class="p">,</span><span class="n">filename</span> <span class="ow">in</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">pluggedData</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pluggedDataName</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coreData</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">coreDataName</span><span class="p">)]:</span>
+                <span class="k">if</span> <span class="nb">file</span><span class="p">:</span>
+                    <span class="nb">object</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">object</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s">&quot;.root&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="nb">file</span>
+            <span class="nb">object</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">if</span> <span class="nb">object</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>
+             </div>
+<div class="viewcode-block" id="DataManager.normalize_weights"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.normalize_weights">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">trees</span><span class="p">,</span><span class="n">norm</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        
+        <span class="n">totalWeight</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+            <span class="n">totalWeight</span> <span class="o">+=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="n">norm</span><span class="o">*</span><span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span><span class="o">/</span><span class="n">totalWeight</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="DataManager.get_tree"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.get_tree">[docs]</a>    <span class="k">def</span> <span class="nf">get_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">treepath</span><span class="p">,</span> <span class="n">maxEntries</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cuts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">cuts</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cuts</span> <span class="o">=</span> <span class="n">Cut</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Fetching tree </span><span class="si">%s</span><span class="s">...&quot;</span><span class="o">%</span><span class="n">treepath</span>
+        <span class="n">inFile</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="n">tmpTree</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">tree</span><span class="p">,</span><span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object_by_name</span><span class="p">(</span><span class="n">treepath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tree</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Tree </span><span class="si">%s</span><span class="s"> not found!&quot;</span><span class="o">%</span><span class="n">treepath</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">friends</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetListOfFriends</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">friends</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">friends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Warning! ROOT does not play nice with friends where cuts are involved!&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">friends</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;Since this tree has one friend, I will assume that it&#39;s friend is the core data (read-only) and you want that tree instead&quot;</span>
+                    <span class="k">print</span> <span class="s">&quot;where cuts may refer to branches in this tree&quot;</span>
+                <span class="n">tmpTree</span> <span class="o">=</span> <span class="n">tree</span>
+                <span class="n">friendTreeName</span> <span class="o">=</span> <span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTreeName</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">friendFiles</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">()):</span>
+                    <span class="n">friendTreeFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">friendFiles</span><span class="p">[</span><span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">()]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">friendTreeFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">friendFiles</span><span class="p">[</span><span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">()]</span> <span class="o">=</span> <span class="n">friendTreeFile</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">friends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">()</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">friendTreeFile</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">friendTreeName</span><span class="p">)</span>
+                <span class="n">tree</span><span class="o">.</span><span class="n">AddFriend</span><span class="p">(</span><span class="n">tmpTree</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">friends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Warning! This tree has multiple friends!&quot;</span>
+        <span class="k">if</span> <span class="n">cuts</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Applying cuts </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">cuts</span>
+            <span class="k">if</span> <span class="n">friends</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">friends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;Warning: applying cuts on tree with multiple friends is not safely implemented yet&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">CopyTree</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cuts</span><span class="p">))</span>
+        <span class="n">originalNumEntries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fraction</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">1.</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Extracting </span><span class="si">%.1f%%</span><span class="s"> of the tree which contains </span><span class="si">%i</span><span class="s"> entries.&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">fraction</span><span class="o">*</span><span class="mf">100.</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span>
+            <span class="n">newEntries</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fraction</span><span class="o">*</span><span class="n">entries</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">CloneTree</span><span class="p">(</span><span class="n">newEntries</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">maxEntries</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">maxEntries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Number of entries in tree exceeds maximum allowed by user: </span><span class="si">%i</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">maxEntries</span>
+                <span class="k">print</span> <span class="s">&quot;Extracting </span><span class="si">%i</span><span class="s"> of </span><span class="si">%i</span><span class="s"> total entries&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">maxEntries</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scratchFile</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">CloneTree</span><span class="p">(</span><span class="n">maxEntries</span><span class="p">)</span>
+        <span class="n">finalNumEntries</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">finalNumEntries</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">originalNumEntries</span> <span class="o">!=</span> <span class="n">finalNumEntries</span><span class="p">:</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetWeight</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">()</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">originalNumEntries</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">finalNumEntries</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;Found </span><span class="si">%s</span><span class="s"> with </span><span class="si">%i</span><span class="s"> entries and weight </span><span class="si">%e</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">treepath</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetEntries</span><span class="p">(),</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetWeight</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">cuts</span><span class="p">:</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">SetName</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span> <span class="n">cuts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">tree</span>
+    </div>
+<div class="viewcode-block" id="DataManager.get_samples"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.get_samples">[docs]</a>    <span class="k">def</span> <span class="nf">get_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplestring</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samplestring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">):</span>
+            <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_sample</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">samples</span>
+    </div>
+<div class="viewcode-block" id="DataManager.get_sample"><a class="viewcode-back" href="../../../reference/rootpy.data.html#rootpy.data.datamanaging.DataManager.get_sample">[docs]</a>    <span class="k">def</span> <span class="nf">get_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplestring</span><span class="p">,</span> <span class="n">treetype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cuts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">maxEntries</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+       
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        
+        <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">samplestring</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&quot;+&quot;</span> <span class="ow">in</span> <span class="n">samplestring</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">samplestring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">)</span>
+
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">samplestring</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+            <span class="n">sample_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">SAMPLE_REGEX</span><span class="p">,</span> <span class="n">samplestring</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_match</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not valid sample syntax&quot;</span><span class="o">%</span> <span class="n">samplestring</span><span class="p">)</span>
+            <span class="n">samplename</span> <span class="o">=</span> <span class="n">sample_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+            <span class="n">sampletype</span> <span class="o">=</span> <span class="n">sample_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sampletype</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">treetype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;default&#39;</span><span class="p">):</span>
+                    <span class="n">sampletype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="s">&#39;default&#39;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span> <span class="ow">is</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">sampletype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No sample type specified yet no default exists&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">treetype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sampletype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sampletype</span> <span class="o">!=</span> <span class="n">treetype</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Conflicting sample types specified: </span><span class="si">%s</span><span class="s"> and </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">sampletype</span><span class="p">,</span> <span class="n">treetype</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">sampletype</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">treetype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">sampletype</span> <span class="o">=</span> <span class="n">treetype</span>
+            <span class="k">if</span> <span class="n">sampletype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sampletype</span> <span class="o">!=</span> <span class="s">&#39;default&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;sample type </span><span class="si">%s</span><span class="s"> is not defined&quot;</span><span class="o">%</span> <span class="n">sampletype</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">sampletype</span> <span class="o">==</span> <span class="s">&#39;default&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;sample type cannot be &#39;default&#39;&quot;</span><span class="p">)</span>
+            
+            <span class="n">tree_paths</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">datatype</span><span class="p">,</span> <span class="n">classtype</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">find_sample</span><span class="p">(</span><span class="n">samplename</span><span class="p">,</span> <span class="n">sampletype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+            <span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">treepath</span> <span class="ow">in</span> <span class="n">tree_paths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span> <span class="s">&quot;===========================================================&quot;</span>
+                <span class="n">trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tree</span><span class="p">(</span><span class="n">treepath</span><span class="p">,</span> <span class="n">maxEntries</span><span class="o">=</span><span class="n">maxEntries</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="n">fraction</span><span class="p">,</span> <span class="n">cuts</span><span class="o">=</span><span class="n">cuts</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">trees</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;sample </span><span class="si">%s</span><span class="s"> (type </span><span class="si">%s</span><span class="s">) was not found&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">samplename</span><span class="p">,</span> <span class="n">treetype</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;sample </span><span class="si">%s</span><span class="s"> (type </span><span class="si">%s</span><span class="s">) was not found&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">samplename</span><span class="p">,</span> <span class="n">treetype</span><span class="p">))</span>
+                <span class="c"># set aliases</span>
+                <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">sampletype</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">GetBranch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;alias&#39;</span><span class="p">):</span>
+                                <span class="n">tree</span><span class="o">.</span><span class="n">SetAlias</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="s">&#39;alias&#39;</span><span class="p">],</span><span class="n">branch</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">Treeset</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">samplename</span><span class="p">,</span>
+                       <span class="n">title</span> <span class="o">=</span> <span class="n">label</span><span class="p">,</span>
+                       <span class="n">label</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                       <span class="n">datatype</span> <span class="o">=</span> <span class="n">datatype</span><span class="p">,</span>
+                       <span class="n">classtype</span> <span class="o">=</span> <span class="n">classtype</span><span class="p">,</span>
+                       <span class="n">trees</span> <span class="o">=</span> <span class="n">trees</span><span class="p">,</span>
+                       <span class="n">weight</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+                       <span class="n">tags</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                       <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span>
+                       <span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2011, Noel Dawe, Jeff Klukas.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>
