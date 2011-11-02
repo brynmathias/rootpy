@@ -1,6 +1,0 @@
-
-The :mod:`rootpy.objectproxy` Module
-===================================
-
-.. automodule:: rootpy.objectproxy
-   :members:

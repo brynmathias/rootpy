@@ -1,7 +1,0 @@
-
-The :mod:`rootpy.vector` Module
-===================================
-
-.. automodule:: rootpy.vector
-   :members:
-

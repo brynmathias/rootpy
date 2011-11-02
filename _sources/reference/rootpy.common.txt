@@ -1,6 +1,0 @@
-
-The :mod:`rootpy.common` Module
-===================================
-
-.. automodule:: rootpy.common
-   :members:
