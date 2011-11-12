@@ -167,7 +167,7 @@ user code for use with earlier Python versions.</p>
 <span id="student-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">student</span></tt> Module<a class="headerlink" href="#module-rootpy.batch.student" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.batch.student.Student">
-<em class="property">class </em><tt class="descclassname">rootpy.batch.student.</tt><tt class="descname">Student</tt><big>(</big><em>name</em>, <em>fileset</em>, <em>output_queue</em>, <em>logging_queue</em>, <em>gridmode=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/student.html#Student"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.student.Student" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.batch.student.</tt><tt class="descname">Student</tt><big>(</big><em>name</em>, <em>fileset</em>, <em>output_queue</em>, <em>logging_queue</em>, <em>gridmode=False</em>, <em>nice=0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/student.html#Student"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.student.Student" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.process.Process</span></tt></p>
 <dl class="method">
 <dt id="rootpy.batch.student.Student.run">
@@ -177,7 +177,8 @@ user code for use with earlier Python versions.</p>
 <dl class="method">
 <dt id="rootpy.batch.student.Student.work">
 <tt class="descname">work</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/student.html#Student.work"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.student.Student.work" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>You must implement this method in your Student-derived class</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -186,7 +187,7 @@ user code for use with earlier Python versions.</p>
 <span id="supervisor-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">supervisor</span></tt> Module<a class="headerlink" href="#module-rootpy.batch.supervisor" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.batch.supervisor.Supervisor">
-<em class="property">class </em><tt class="descclassname">rootpy.batch.supervisor.</tt><tt class="descname">Supervisor</tt><big>(</big><em>student</em>, <em>outputname</em>, <em>fileset</em>, <em>nstudents=2</em>, <em>connect_queue=None</em>, <em>gridmode=False</em>, <em>args=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.batch.supervisor.</tt><tt class="descname">Supervisor</tt><big>(</big><em>student</em>, <em>outputname</em>, <em>fileset</em>, <em>nstudents=2</em>, <em>connect_queue=None</em>, <em>gridmode=False</em>, <em>nice=0</em>, <em>args=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.process.Process</span></tt></p>
 <dl class="method">
 <dt id="rootpy.batch.supervisor.Supervisor.apply_for_grant">

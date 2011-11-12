@@ -404,8 +404,8 @@ Removes all dependence on this module.</p>
 <span id="tree-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tree</span></tt> Module<a class="headerlink" href="#module-rootpy.tree.tree" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.tree.tree.Tree">
-<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">Tree</tt><big>(</big><em>name=None</em>, <em>title=None</em>, <em>model=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="rootpy.html#rootpy.core.Object" title="rootpy.core.Object"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.Object</span></tt></a>, <a class="reference internal" href="rootpy.plotting.html#rootpy.plotting.core.Plottable" title="rootpy.plotting.core.Plottable"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.plotting.core.Plottable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TTree</span></tt></p>
+<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">Tree</tt><big>(</big><em>name=None</em>, <em>title=None</em>, <em>model=None</em>, <em>file=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="rootpy.html#rootpy.core.Object" title="rootpy.core.Object"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.Object</span></tt></a>, <a class="reference internal" href="rootpy.plotting.html#rootpy.plotting.core.Plottable" title="rootpy.plotting.core.Plottable"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.plotting.core.Plottable</span></tt></a>, <a class="reference internal" href="rootpy.html#rootpy.core.RequireFile" title="rootpy.core.RequireFile"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.RequireFile</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TTree</span></tt></p>
 <p>Inherits from TTree so all regular TTree methods are available
 but Draw has been overridden to improve usage in Python</p>
 <dl class="method">
@@ -442,6 +442,11 @@ but Draw has been overridden to improve usage in Python</p>
 <dl class="method">
 <dt id="rootpy.tree.tree.Tree.Scale">
 <tt class="descname">Scale</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.Scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.Scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.tree.tree.Tree.Write">
+<tt class="descname">Write</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#rootpy.tree.tree.Tree.Write" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -486,7 +491,7 @@ but Draw has been overridden to improve usage in Python</p>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.Tree.csv">
-<tt class="descname">csv</tt><big>(</big><em>sep='</em>, <em>'</em>, <em>include_labels=True</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2b68b43981e0&gt;</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.csv" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">csv</tt><big>(</big><em>sep='</em>, <em>'</em>, <em>include_labels=True</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ac424bd71e0&gt;</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print csv representation of tree only including branches
 of basic types (no objects, vectors, etc..)</p>
 </dd></dl>
@@ -504,7 +509,7 @@ of basic types (no objects, vectors, etc..)</p>
 
 <dl class="attribute">
 <dt id="rootpy.tree.tree.Tree.draw_command">
-<tt class="descname">draw_command</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x45d8d70&gt;</em><a class="headerlink" href="#rootpy.tree.tree.Tree.draw_command" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">draw_command</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x4fcae90&gt;</em><a class="headerlink" href="#rootpy.tree.tree.Tree.draw_command" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -635,6 +640,11 @@ prune may be a string or list of strings.</p>
 <tt class="descname">use_cache</tt><big>(</big><em>cache</em>, <em>cache_size=10000000</em>, <em>learn_entries=1</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.use_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.use_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="rootpy.tree.tree.Tree.write">
+<tt class="descname">write</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#rootpy.tree.tree.Tree.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -691,7 +701,7 @@ prune may be a string or list of strings.</p>
 
 <dl class="class">
 <dt id="rootpy.tree.tree.TreeChain">
-<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">TreeChain</tt><big>(</big><em>name</em>, <em>files</em>, <em>buffer=None</em>, <em>branches=None</em>, <em>events=-1</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2b68b43981e0&gt;</em>, <em>onfilechange=None</em>, <em>usecache=False</em>, <em>cache_size=10000000</em>, <em>learn_entries=1</em>, <em>always_read=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeChain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">TreeChain</tt><big>(</big><em>name</em>, <em>files</em>, <em>buffer=None</em>, <em>branches=None</em>, <em>events=-1</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ac424bd71e0&gt;</em>, <em>onfilechange=None</em>, <em>cache=False</em>, <em>cache_size=10000000</em>, <em>learn_entries=1</em>, <em>always_read=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A replacement for TChain</p>
 <dl class="method">
