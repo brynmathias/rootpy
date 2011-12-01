@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>rootpy.batch.supervisor &mdash; rootpy 0.5 documentation</title>
+    <title>rootpy.batch.supervisor &mdash; rootpy 0.6 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/clean.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="rootpy 0.5 documentation" href="../../../index.html" />
+    <link rel="top" title="rootpy 0.6 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" />
    
   
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">rootpy 0.6 documentation</a> &raquo;</li>
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -81,14 +81,20 @@
 <span class="k">except</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pickle</span>
 
+
 <span class="n">NCPUS</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
 
 <div class="viewcode-block" id="Supervisor"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.supervisor.Supervisor">[docs]</a><span class="k">class</span> <span class="nc">Supervisor</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">,</span> <span class="n">outputname</span><span class="p">,</span> <span class="n">fileset</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">student</span><span class="p">,</span> <span class="n">outputname</span><span class="p">,</span>
+                 <span class="n">files</span><span class="p">,</span>
+                 <span class="n">metadata</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">nstudents</span><span class="o">=</span><span class="n">NCPUS</span><span class="p">,</span>
                  <span class="n">connect_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">gridmode</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">queuemode</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">nice</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 
@@ -98,20 +104,24 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">student</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
             <span class="c"># remove .py extension if present</span>
             <span class="n">student</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">student</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">print</span> <span class="s">&quot;importing </span><span class="si">%s</span><span class="s">...&quot;</span><span class="o">%</span> <span class="n">student</span>
-            <span class="k">exec</span> <span class="s">&quot;from </span><span class="si">%s</span><span class="s"> import </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">student</span><span class="p">,</span> <span class="n">student</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s">&quot;importing </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="n">student</span>
+            <span class="k">exec</span> <span class="s">&quot;from </span><span class="si">%s</span><span class="s"> import </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">student</span><span class="p">,</span> <span class="n">student</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">student</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Student</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> must be a subclass of Student&quot;</span> <span class="o">%</span> <span class="n">student</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span> <span class="o">=</span> <span class="n">fileset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputname</span> <span class="o">=</span> <span class="n">outputname</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span> <span class="o">=</span> <span class="n">gridmode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nice</span> <span class="o">=</span> <span class="n">nice</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">queuemode</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nstudents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">fileset</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nstudents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span> <span class="o">=</span> <span class="n">queuemode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">student_outputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">None</span>
@@ -127,7 +137,8 @@
         
         <span class="c"># logging</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span> <span class="o">=</span> <span class="n">multilogging</span><span class="o">.</span><span class="n">Listener</span><span class="p">(</span><span class="s">&quot;supervisor-</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">.log&quot;</span><span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputname</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span> <span class="o">=</span> <span class="n">multilogging</span><span class="o">.</span><span class="n">Listener</span><span class="p">(</span><span class="s">&quot;supervisor-</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">.log&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputname</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         
         <span class="n">h</span> <span class="o">=</span> <span class="n">multilogging</span><span class="o">.</span><span class="n">QueueHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">)</span>
@@ -138,9 +149,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">multilogging</span><span class="o">.</span><span class="n">stdout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">multilogging</span><span class="o">.</span><span class="n">stderr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
-       
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">apply_for_grant</span><span class="p">()</span>
+            <span class="k">print</span> <span class="s">&quot;Will run on </span><span class="si">%i</span><span class="s"> file(s):&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hire_students</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">supervise</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">()</span>
         <span class="k">except</span><span class="p">:</span>
@@ -148,32 +166,56 @@
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_tb</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
         
         <span class="k">print</span> <span class="s">&quot;Done&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Supervisor.apply_for_grant"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.supervisor.Supervisor.apply_for_grant">[docs]</a>    <span class="k">def</span> <span class="nf">apply_for_grant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Supervisor.hire_students"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.supervisor.Supervisor.hire_students">[docs]</a>    <span class="k">def</span> <span class="nf">hire_students</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         
-        <span class="k">print</span> <span class="s">&quot;Will run on </span><span class="si">%i</span><span class="s"> file(s):&quot;</span><span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span> <span class="n">filename</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-        <span class="n">filesets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">students</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">fileset</span> <span class="o">=</span> <span class="n">fileset</span><span class="p">,</span>
-                <span class="n">output_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="p">,</span>
-                <span class="n">logging_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">,</span>
-                <span class="n">gridmode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span><span class="p">,</span>
-                <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
-            <span class="p">)</span> <span class="k">for</span> <span class="n">fileset</span> <span class="ow">in</span> <span class="n">filesets</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span><span class="p">:</span>
+            <span class="n">students</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="p">,</span>
+                    <span class="n">output_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="p">,</span>
+                    <span class="n">logging_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">,</span>
+                    <span class="n">gridmode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span><span class="p">,</span>
+                    <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="p">,</span>
+                    <span class="n">nice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nice</span><span class="p">,</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
+                <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span><span class="p">)</span> <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># deal out files</span>
+            <span class="n">filesets</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span><span class="p">)]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">fileset</span> <span class="ow">in</span> <span class="n">filesets</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">fileset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+            <span class="n">students</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">fileset</span><span class="p">,</span>
+                    <span class="n">output_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="p">,</span>
+                    <span class="n">logging_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_queue</span><span class="p">,</span>
+                    <span class="n">gridmode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gridmode</span><span class="p">,</span>
+                    <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileset</span><span class="p">,</span>
+                    <span class="n">nice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nice</span><span class="p">,</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
+                <span class="p">)</span> <span class="k">for</span> <span class="n">fileset</span> <span class="ow">in</span> <span class="n">filesets</span> <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_table</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">students</span><span class="p">])</span>
             </div>
 <div class="viewcode-block" id="Supervisor.supervise"><a class="viewcode-back" href="../../../reference/rootpy.batch.html#rootpy.batch.supervisor.Supervisor.supervise">[docs]</a>    <span class="k">def</span> <span class="nf">supervise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span><span class="p">:</span>
+            <span class="c"># fill queue</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">full</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_table</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">student</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_table</span><span class="p">:</span>
@@ -185,6 +227,13 @@
                         <span class="k">for</span> <span class="n">student</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_table</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                             <span class="n">student</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
                         <span class="k">return</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queuemode</span><span class="p">:</span>
+                <span class="c"># fill queue</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">full</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstudents</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">file_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
             <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
                 <span class="nb">id</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_table</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>rootpy.core &mdash; rootpy 0.5 documentation</title>
+    <title>rootpy.core &mdash; rootpy 0.6 documentation</title>
     
     <link rel="stylesheet" href="../../_static/clean.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="rootpy 0.5 documentation" href="../../index.html" />
+    <link rel="top" title="rootpy 0.6 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">rootpy 0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -67,6 +67,30 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 
 
+<div class="viewcode-block" id="RequireFile"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.core.RequireFile">[docs]</a><span class="k">class</span> <span class="nc">RequireFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gDirectory</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;PyROOT&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;You must first create a File &quot;</span>
+                               <span class="s">&quot;before creating a </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__directory</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gDirectory</span>
+    
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="RequireFile.cd"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.core.RequireFile.cd">[docs]</a>    <span class="k">def</span> <span class="nf">cd</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A decorator</span>
+<span class="sd">        Useful for TTree.Write...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">pwd</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">gDirectory</span>
+            <span class="c"># self == args[0]</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">__directory</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+            <span class="n">pwd</span><span class="o">.</span><span class="n">cd</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">g</span>
+        
+</div></div>
 <div class="viewcode-block" id="wrap_call"><a class="viewcode-back" href="../../reference/rootpy.html#rootpy.core.wrap_call">[docs]</a><span class="k">def</span> <span class="nf">wrap_call</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Will provide more detailed info in the case that</span>

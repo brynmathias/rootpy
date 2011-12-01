@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>tree Package &mdash; rootpy 0.5 documentation</title>
+    <title>tree Package &mdash; rootpy 0.6 documentation</title>
     
     <link rel="stylesheet" href="../_static/clean.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,9 +24,8 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="rootpy 0.5 documentation" href="../index.html" />
+    <link rel="top" title="rootpy 0.6 documentation" href="../index.html" />
     <link rel="up" title="rootpy Package" href="rootpy.html" />
-    <link rel="next" title="types Package" href="rootpy.types.html" />
     <link rel="prev" title="plotting Package" href="rootpy.plotting.html" />
    
   
@@ -51,12 +50,9 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="rootpy.types.html" title="types Package"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
           <a href="rootpy.plotting.html" title="plotting Package"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+        <li><a href="../index.html">rootpy 0.6 documentation</a> &raquo;</li>
           <li><a href="modules.html" >API Reference</a> &raquo;</li>
           <li><a href="rootpy.html" accesskey="U">rootpy Package</a> &raquo;</li> 
       </ul>
@@ -198,7 +194,7 @@
 <dt id="rootpy.tree.cut.Cut">
 <em class="property">class </em><tt class="descclassname">rootpy.tree.cut.</tt><tt class="descname">Cut</tt><big>(</big><em>cut=''</em>, <em>from_file=False</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/cut.html#Cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.cut.Cut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TCut</span></tt></p>
-<p>A wrapper class around ROOT.TCut which implements logical operators</p>
+<p>Inherits from ROOT.TCut and implements logical operators</p>
 <dl class="staticmethod">
 <dt id="rootpy.tree.cut.Cut.convert">
 <em class="property">static </em><tt class="descname">convert</tt><big>(</big><em>thing</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/cut.html#Cut.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.cut.Cut.convert" title="Permalink to this definition">¶</a></dt>
@@ -407,7 +403,8 @@ Removes all dependence on this module.</p>
 <em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">Tree</tt><big>(</big><em>name=None</em>, <em>title=None</em>, <em>model=None</em>, <em>file=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="rootpy.html#rootpy.core.Object" title="rootpy.core.Object"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.Object</span></tt></a>, <a class="reference internal" href="rootpy.plotting.html#rootpy.plotting.core.Plottable" title="rootpy.plotting.core.Plottable"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.plotting.core.Plottable</span></tt></a>, <a class="reference internal" href="rootpy.html#rootpy.core.RequireFile" title="rootpy.core.RequireFile"><tt class="xref py py-class docutils literal"><span class="pre">rootpy.core.RequireFile</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">ROOT.TTree</span></tt></p>
 <p>Inherits from TTree so all regular TTree methods are available
-but Draw has been overridden to improve usage in Python</p>
+but certain methods (i.e. Draw) have been overridden
+to improve usage in Python</p>
 <dl class="method">
 <dt id="rootpy.tree.tree.Tree.Draw">
 <tt class="descname">Draw</tt><big>(</big><em>expression</em>, <em>selection=''</em>, <em>options=''</em>, <em>hist=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.Draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.Draw" title="Permalink to this definition">¶</a></dt>
@@ -446,7 +443,7 @@ but Draw has been overridden to improve usage in Python</p>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.Tree.Write">
-<tt class="descname">Write</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#rootpy.tree.tree.Tree.Write" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Write</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.Write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.Write" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -491,7 +488,7 @@ but Draw has been overridden to improve usage in Python</p>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.Tree.csv">
-<tt class="descname">csv</tt><big>(</big><em>sep='</em>, <em>'</em>, <em>include_labels=True</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ac424bd71e0&gt;</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.csv" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">csv</tt><big>(</big><em>sep='</em>, <em>'</em>, <em>include_labels=True</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ae54c0681e0&gt;</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#Tree.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.Tree.csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print csv representation of tree only including branches
 of basic types (no objects, vectors, etc..)</p>
 </dd></dl>
@@ -509,7 +506,7 @@ of basic types (no objects, vectors, etc..)</p>
 
 <dl class="attribute">
 <dt id="rootpy.tree.tree.Tree.draw_command">
-<tt class="descname">draw_command</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x4fcae90&gt;</em><a class="headerlink" href="#rootpy.tree.tree.Tree.draw_command" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">draw_command</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x5594440&gt;</em><a class="headerlink" href="#rootpy.tree.tree.Tree.draw_command" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -701,9 +698,9 @@ prune may be a string or list of strings.</p>
 
 <dl class="class">
 <dt id="rootpy.tree.tree.TreeChain">
-<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">TreeChain</tt><big>(</big><em>name</em>, <em>files</em>, <em>buffer=None</em>, <em>branches=None</em>, <em>events=-1</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ac424bd71e0&gt;</em>, <em>onfilechange=None</em>, <em>cache=False</em>, <em>cache_size=10000000</em>, <em>learn_entries=1</em>, <em>always_read=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeChain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">TreeChain</tt><big>(</big><em>name</em>, <em>files</em>, <em>buffer=None</em>, <em>branches=None</em>, <em>events=-1</em>, <em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x2ae54c0681e0&gt;</em>, <em>onfilechange=None</em>, <em>cache=False</em>, <em>cache_size=10000000</em>, <em>learn_entries=1</em>, <em>always_read=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A replacement for TChain</p>
+<p>A ROOT.TChain replacement</p>
 <dl class="method">
 <dt id="rootpy.tree.tree.TreeChain.always_read">
 <tt class="descname">always_read</tt><big>(</big><em>branches</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeChain.always_read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeChain.always_read" title="Permalink to this definition">¶</a></dt>
@@ -721,30 +718,40 @@ prune may be a string or list of strings.</p>
 <dt id="rootpy.tree.tree.TreeModelMeta">
 <em class="property">class </em><tt class="descclassname">rootpy.tree.tree.</tt><tt class="descname">TreeModelMeta</tt><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">type</span></tt></p>
+<p>Metaclass for all TreeModels
+Addition/subtraction of TreeModels is handled
+as set union and difference of class attributes</p>
 <dl class="classmethod">
 <dt id="rootpy.tree.tree.TreeModelMeta.checkattr">
 <em class="property">classmethod </em><tt class="descname">checkattr</tt><big>(</big><em>metacls</em>, <em>attr</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta.checkattr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta.checkattr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Only allow class attributes that are instances of
+rootpy.types.Column, ROOT.TObject, or ROOT.ObjectProxy</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.TreeModelMeta.get_attrs">
 <tt class="descname">get_attrs</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta.get_attrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta.get_attrs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get all class attributes</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.TreeModelMeta.prefix">
 <tt class="descname">prefix</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta.prefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta.prefix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create a new TreeModel where class attribute
+names are prefixed with name</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.TreeModelMeta.suffix">
 <tt class="descname">suffix</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta.suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta.suffix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create a new TreeModel where class attribute
+names are suffixed with name</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="rootpy.tree.tree.TreeModelMeta.to_struct">
 <tt class="descname">to_struct</tt><big>(</big><em>name=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/tree.html#TreeModelMeta.to_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.tree.TreeModelMeta.to_struct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert model into a C struct then compile
+<dd><p>Convert TreeModel into a C struct then compile
 and import with ROOT</p>
 </dd></dl>
 
@@ -755,7 +762,7 @@ and import with ROOT</p>
 <span id="treeobject-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">treeobject</span></tt> Module<a class="headerlink" href="#module-rootpy.tree.treeobject" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.tree.treeobject.TreeCollection">
-<em class="property">class </em><tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">TreeCollection</tt><big>(</big><em>tree</em>, <em>name</em>, <em>prefix</em>, <em>size</em>, <em>mix=None</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">TreeCollection</tt><big>(</big><em>tree</em>, <em>name</em>, <em>prefix</em>, <em>size</em>, <em>mix=None</em>, <em>cache=True</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="rootpy.tree.treeobject.TreeCollection.getitem">
@@ -768,6 +775,16 @@ and import with ROOT</p>
 <dd><p>Perform actual selection and sorting on underlying
 attribute vectors</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="rootpy.tree.treeobject.TreeCollection.mask">
+<tt class="descname">mask</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection.mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection.mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.tree.treeobject.TreeCollection.mask_indices">
+<tt class="descname">mask_indices</tt><big>(</big><em>indices</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection.mask_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection.mask_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="rootpy.tree.treeobject.TreeCollection.name">
@@ -787,6 +804,11 @@ attribute vectors</p>
 <dl class="method">
 <dt id="rootpy.tree.treeobject.TreeCollection.select">
 <tt class="descname">select</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection.select" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="rootpy.tree.treeobject.TreeCollection.select_indices">
+<tt class="descname">select_indices</tt><big>(</big><em>indices</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#TreeCollection.select_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.TreeCollection.select_indices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -854,13 +876,18 @@ attribute vectors</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="rootpy.tree.treeobject.mix_treecollectionobject">
-<tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">mix_treecollectionobject</tt><big>(</big><em>mix</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#mix_treecollectionobject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.mix_treecollectionobject" title="Permalink to this definition">¶</a></dt>
+<dt id="rootpy.tree.treeobject.mix_classes">
+<tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">mix_classes</tt><big>(</big><em>cls</em>, <em>mixins</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#mix_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.mix_classes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="rootpy.tree.treeobject.mix_treeobject">
-<tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">mix_treeobject</tt><big>(</big><em>mix</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#mix_treeobject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.mix_treeobject" title="Permalink to this definition">¶</a></dt>
+<dt id="rootpy.tree.treeobject.one_to_many_assoc">
+<tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">one_to_many_assoc</tt><big>(</big><em>name</em>, <em>collection</em>, <em>index_branch</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#one_to_many_assoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.one_to_many_assoc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rootpy.tree.treeobject.one_to_one_assoc">
+<tt class="descclassname">rootpy.tree.treeobject.</tt><tt class="descname">one_to_one_assoc</tt><big>(</big><em>name</em>, <em>collection</em>, <em>index_branch</em><big>)</big><a class="reference internal" href="../_modules/rootpy/tree/treeobject.html#one_to_one_assoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.tree.treeobject.one_to_one_assoc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -891,7 +918,6 @@ attribute vectors</p>
   <li><a href="modules.html">API Reference</a><ul>
   <li><a href="rootpy.html">rootpy Package</a><ul>
       <li>Previous: <a href="rootpy.plotting.html" title="previous chapter">plotting Package</a></li>
-      <li>Next: <a href="rootpy.types.html" title="next chapter">types Package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>

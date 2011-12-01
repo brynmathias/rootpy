@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>batch Package &mdash; rootpy 0.5 documentation</title>
+    <title>batch Package &mdash; rootpy 0.6 documentation</title>
     
     <link rel="stylesheet" href="../_static/clean.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="rootpy 0.5 documentation" href="../index.html" />
+    <link rel="top" title="rootpy 0.6 documentation" href="../index.html" />
     <link rel="up" title="rootpy Package" href="rootpy.html" />
     <link rel="next" title="data Package" href="rootpy.data.html" />
     <link rel="prev" title="rootpy Package" href="rootpy.html" />
@@ -56,7 +56,7 @@
         <li class="right" >
           <a href="rootpy.html" title="rootpy Package"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">rootpy 0.5 documentation</a> &raquo;</li>
+        <li><a href="../index.html">rootpy 0.6 documentation</a> &raquo;</li>
           <li><a href="modules.html" >API Reference</a> &raquo;</li>
           <li><a href="rootpy.html" accesskey="U">rootpy Package</a> &raquo;</li> 
       </ul>
@@ -167,7 +167,7 @@ user code for use with earlier Python versions.</p>
 <span id="student-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">student</span></tt> Module<a class="headerlink" href="#module-rootpy.batch.student" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.batch.student.Student">
-<em class="property">class </em><tt class="descclassname">rootpy.batch.student.</tt><tt class="descname">Student</tt><big>(</big><em>name</em>, <em>fileset</em>, <em>output_queue</em>, <em>logging_queue</em>, <em>gridmode=False</em>, <em>nice=0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/student.html#Student"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.student.Student" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.batch.student.</tt><tt class="descname">Student</tt><big>(</big><em>name</em>, <em>files</em>, <em>output_queue</em>, <em>logging_queue</em>, <em>gridmode=False</em>, <em>metadata=None</em>, <em>nice=0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/student.html#Student"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.student.Student" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.process.Process</span></tt></p>
 <dl class="method">
 <dt id="rootpy.batch.student.Student.run">
@@ -187,11 +187,11 @@ user code for use with earlier Python versions.</p>
 <span id="supervisor-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">supervisor</span></tt> Module<a class="headerlink" href="#module-rootpy.batch.supervisor" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rootpy.batch.supervisor.Supervisor">
-<em class="property">class </em><tt class="descclassname">rootpy.batch.supervisor.</tt><tt class="descname">Supervisor</tt><big>(</big><em>student</em>, <em>outputname</em>, <em>fileset</em>, <em>nstudents=2</em>, <em>connect_queue=None</em>, <em>gridmode=False</em>, <em>nice=0</em>, <em>args=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rootpy.batch.supervisor.</tt><tt class="descname">Supervisor</tt><big>(</big><em>student</em>, <em>outputname</em>, <em>files</em>, <em>metadata=None</em>, <em>nstudents=2</em>, <em>connect_queue=None</em>, <em>gridmode=False</em>, <em>queuemode=True</em>, <em>nice=0</em>, <em>args=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.process.Process</span></tt></p>
 <dl class="method">
-<dt id="rootpy.batch.supervisor.Supervisor.apply_for_grant">
-<tt class="descname">apply_for_grant</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor.apply_for_grant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor.apply_for_grant" title="Permalink to this definition">¶</a></dt>
+<dt id="rootpy.batch.supervisor.Supervisor.hire_students">
+<tt class="descname">hire_students</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/rootpy/batch/supervisor.html#Supervisor.hire_students"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rootpy.batch.supervisor.Supervisor.hire_students" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
